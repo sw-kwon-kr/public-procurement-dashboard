@@ -1,0 +1,140 @@
+﻿:root {
+  color-scheme: light;
+  --bg: #eef2f7;
+  --surface: #ffffff;
+  --line: #d7deea;
+  --ink: #172033;
+  --muted: #657189;
+  --blue: #2563eb;
+  --blue-2: #1d4ed8;
+  --teal: #0f766e;
+  --amber: #b45309;
+  --red: #b91c1c;
+  --violet: #6d28d9;
+  --shadow: 0 12px 30px rgba(24, 36, 62, .10);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Malgun Gothic", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+button, input { font: inherit; }
+.shell { width: min(1480px, calc(100vw - 32px)); margin: 0 auto; padding: 20px 0 28px; }
+.topbar, .filters, .chartPanel, .detailPanel, .summaryCard {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 20px;
+  border-radius: 8px;
+}
+.eyebrow { margin: 0 0 4px; color: var(--blue); font-size: 12px; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
+h1, h2, p { margin-top: 0; }
+h1 { margin-bottom: 0; font-size: 30px; line-height: 1.15; }
+h2 { margin-bottom: 4px; font-size: 18px; }
+.uploadBox { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.uploadButton, .ghostButton, .segment {
+  border: 1px solid var(--line);
+  background: #f8fafc;
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 6px;
+  min-height: 38px;
+}
+.uploadButton { display: inline-flex; align-items: center; padding: 0 14px; font-weight: 800; background: var(--blue); border-color: var(--blue); color: #fff; }
+#csvFile { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.fileName { max-width: 340px; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.filters {
+  margin-top: 12px;
+  border-radius: 8px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(360px, 1.5fr) minmax(190px, .7fr) minmax(300px, .9fr) minmax(220px, .8fr);
+  gap: 12px;
+  align-items: end;
+}
+.fieldGroup, .dateGroup, .searchBox { display: grid; gap: 6px; }
+.label, .dateGroup label, .searchBox { color: var(--muted); font-size: 12px; font-weight: 800; }
+.segments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.metricSegments { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.segment { padding: 0 10px; font-weight: 800; color: #334155; }
+.segment.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+.dateGroup { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dateGroup input, .searchBox input {
+  margin-top: 6px;
+  width: 100%;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 10px;
+  background: #fff;
+  color: var(--ink);
+}
+.summaryGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.summaryCard { border-radius: 8px; padding: 14px; }
+.summaryCard span { display: block; color: var(--muted); font-size: 12px; font-weight: 800; }
+.summaryCard strong { display: block; margin-top: 8px; font-size: 23px; line-height: 1.1; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(420px, .85fr); gap: 12px; margin-top: 12px; align-items: start; }
+.chartPanel, .detailPanel { border-radius: 8px; overflow: hidden; }
+.panelHead { min-height: 68px; display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.panelHead p { margin-bottom: 0; color: var(--muted); font-size: 13px; }
+.ghostButton { padding: 0 12px; font-weight: 800; }
+.treemap { position: relative; height: min(62vh, 680px); min-height: 520px; background: #111827; overflow: hidden; }
+.tile {
+  position: absolute;
+  border: 2px solid #111827;
+  color: #fff;
+  overflow: hidden;
+  padding: 9px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: transform .12s ease, filter .12s ease, outline-color .12s ease;
+}
+.tile:hover { filter: brightness(1.08); z-index: 3; }
+.tile.selected { outline: 3px solid #facc15; outline-offset: -4px; z-index: 4; }
+.tileCompany { width: 100%; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,.45); overflow-wrap: anywhere; }
+.tileValue { margin-top: 5px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,.45); }
+.tileMeta { margin-top: 4px; font-size: 12px; opacity: .92; }
+.tileTiny .tileMeta, .tileTiny .tileValue { display: none; }
+.tileTiny { padding: 4px; }
+.detailPanel { min-height: 620px; }
+.detailHead { min-height: 68px; }
+.companyStats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 12px; border-bottom: 1px solid var(--line); }
+.companyStat { background: #f8fafc; border: 1px solid var(--line); border-radius: 6px; padding: 10px; }
+.companyStat span { display: block; color: var(--muted); font-size: 12px; font-weight: 800; }
+.companyStat strong { display: block; margin-top: 5px; font-size: 16px; }
+.tableWrap { max-height: 520px; overflow: auto; }
+table { width: 100%; min-width: 1180px; border-collapse: collapse; font-size: 13px; }
+th, td { border-bottom: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
+th { position: sticky; top: 0; background: #f8fafc; z-index: 1; color: #475569; font-size: 12px; white-space: nowrap; }
+td { color: #253046; min-width: 92px; }
+.amountCell { text-align: right; white-space: nowrap; font-weight: 800; min-width: 130px; }
+.empty { text-align: center; color: var(--muted); padding: 32px 10px; }
+.notice { padding: 26px; color: #cbd5e1; text-align: center; }
+
+@media (max-width: 1100px) {
+  .filters { grid-template-columns: 1fr 1fr; }
+  .workspace { grid-template-columns: 1fr; }
+  .detailPanel { min-height: auto; }
+}
+@media (max-width: 760px) {
+  .shell { width: min(100vw - 20px, 1480px); padding-top: 10px; }
+  .topbar { align-items: flex-start; flex-direction: column; }
+  .filters, .summaryGrid { grid-template-columns: 1fr; }
+  .segments, .dateGroup { grid-template-columns: 1fr; }
+  .treemap { min-height: 520px; height: 66vh; }
+  .companyStats { grid-template-columns: 1fr; }
+}
+

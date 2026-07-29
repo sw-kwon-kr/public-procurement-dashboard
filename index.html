@@ -1,0 +1,89 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>조달 계약 대시보드</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="titleBlock">
+        <p class="eyebrow">Public Procurement Dashboard</p>
+        <h1>조달 계약 분석</h1>
+      </div>
+      <div class="uploadBox">
+        <label class="uploadButton" for="csvFile">CSV 업로드</label>
+        <input id="csvFile" type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values" />
+        <span id="fileName" class="fileName">샘플 CSV 로딩 중</span>
+      </div>
+    </header>
+
+    <section class="filters" aria-label="분석 조건">
+      <div class="fieldGroup">
+        <span class="label">분야</span>
+        <div class="segments" id="itemFilters"></div>
+      </div>
+      <div class="fieldGroup compact">
+        <span class="label">지표</span>
+        <div class="segments metricSegments">
+          <button class="segment active" data-metric="amount">계약금액</button>
+          <button class="segment" data-metric="count">계약건수</button>
+        </div>
+      </div>
+      <div class="dateGroup">
+        <label>기간 시작<input id="dateFrom" type="date" /></label>
+        <label>기간 종료<input id="dateTo" type="date" /></label>
+      </div>
+      <label class="searchBox">업체 검색<input id="companySearch" type="search" placeholder="업체명 입력" /></label>
+    </section>
+
+    <section class="summaryGrid" id="summaryGrid"></section>
+
+    <section class="workspace">
+      <div class="chartPanel">
+        <div class="panelHead">
+          <div>
+            <h2 id="chartTitle">업체별 계약 현황</h2>
+            <p id="chartSubTitle">계약금액 기준 면적 표시</p>
+          </div>
+          <button id="resetSelection" class="ghostButton" type="button">선택 해제</button>
+        </div>
+        <div id="treemap" class="treemap" role="list" aria-label="업체별 계약 트리맵"></div>
+      </div>
+
+      <aside class="detailPanel">
+        <div class="panelHead detailHead">
+          <div>
+            <h2 id="detailTitle">업체 상세</h2>
+            <p id="detailSubTitle">업체 타일을 선택하세요</p>
+          </div>
+        </div>
+        <div id="companyStats" class="companyStats"></div>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>조달방식</th>
+                <th>세부품명</th>
+                <th>물품식별</th>
+                <th>조달방식구분</th>
+                <th>업체</th>
+                <th>수요기관</th>
+                <th>계약명</th>
+                <th>계약금액</th>
+              </tr>
+            </thead>
+            <tbody id="detailRows">
+              <tr><td colspan="8" class="empty">선택된 업체가 없습니다.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
