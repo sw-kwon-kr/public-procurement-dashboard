@@ -36,19 +36,43 @@ const els = {
   resetSelection: document.querySelector("#resetSelection"),
 };
 
-function parseTable(text) {
+function parseTable(text, sourceName = "") {
   const lines = text.replace(/^\ufeff/, "").split(/\r?\n/).filter(Boolean);
-  const headerIndex = lines.findIndex(line => line.includes("조달방식") && line.includes("공급금액"));
-  if (headerIndex < 0) throw new Error("CSV 헤더를 찾지 못했습니다. 조달청 특정품목 조달 내역 원본 파일인지 확인해 주세요.");
+  const headerIndex = lines.findIndex(line => (line.includes("세부품명번호") || line.includes("물품분류번호")) && (line.includes("공급금액") || line.includes("계약(납품요구)금액")));
+  if (headerIndex < 0) throw new Error(`${sourceName || "CSV"}에서 분석 가능한 헤더를 찾지 못했습니다.`);
   const delimiter = lines[headerIndex].includes("\t") ? "\t" : ",";
   const headers = parseDelimitedLine(lines[headerIndex], delimiter).map(cleanCell);
   return lines.slice(headerIndex + 1).map(line => {
     const cells = parseDelimitedLine(line, delimiter);
-    return headers.reduce((acc, key, index) => {
+    const row = headers.reduce((acc, key, index) => {
       acc[key] = cleanCell(cells[index] ?? "");
       return acc;
     }, {});
-  }).filter(row => row["업체명"] && row["세부품명"]);
+    return normalizeRow(row, sourceName);
+  }).filter(row => row["업체명"] && isTargetItem(row));
+}
+
+function normalizeRow(row, sourceName) {
+  const inferred = inferItem(row);
+  return {
+    ...row,
+    "세부품명번호": row["세부품명번호"] || inferred?.code || row["물품분류번호"] || "",
+    "세부품명": row["세부품명"] || inferred?.name || row["품명"] || "",
+    "공급금액": row["공급금액"] || row["계약(납품요구)금액"] || "0",
+    "계약(납품요구)명": row["계약(납품요구)명"] || row["계약명"] || "",
+    "최종계약(납품요구)여부": row["최종계약(납품요구)여부"] || "Y",
+    "자료구분": sourceName?.includes("혁신") || sourceName?.toLowerCase().includes("innovation") ? "혁신제품" : "특정품목",
+    "원본파일": sourceName || "업로드 CSV",
+  };
+}
+
+function inferItem(row) {
+  const text = [row["세부품명"], row["품명"], row["품목명"], row["계약명"], row["계약(납품요구)명"]].filter(Boolean).join(" ");
+  return ITEM_OPTIONS.find(option => text.includes(option.name));
+}
+
+function isTargetItem(row) {
+  return ITEM_OPTIONS.some(option => row["세부품명번호"] === option.code || row["세부품명"] === option.name);
 }
 
 function parseDelimitedLine(line, delimiter) {
@@ -324,11 +348,23 @@ function render() {
 }
 
 async function loadSample() {
+  const samples = [
+    "./data/sample-procurement.csv",
+    "./data/sample-innovation.csv",
+  ];
   try {
-    const res = await fetch("./data/sample-procurement.csv");
-    if (!res.ok) throw new Error("샘플 CSV를 불러오지 못했습니다.");
-    const buffer = await res.arrayBuffer();
-    state.rows = parseTable(decodeCsv(buffer));
+    const loaded = [];
+    for (const url of samples) {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const buffer = await res.arrayBuffer();
+      const name = url.split("/").pop();
+      loaded.push(...parseTable(decodeCsv(buffer), name));
+    }
+    if (!loaded.length) throw new Error("샘플 CSV를 불러오지 못했습니다.");
+    state.rows = loaded;
+    state.sourceName = "기본 샘플 2개";
+    state.selectedCompany = null;
     setInitialDates();
     els.fileName.textContent = `${state.sourceName} · ${state.rows.length.toLocaleString("ko-KR")}행`;
     render();
@@ -339,17 +375,20 @@ async function loadSample() {
 }
 
 els.csvFile.addEventListener("change", async event => {
-  const file = event.target.files?.[0];
-  if (!file) return;
-  const buffer = await file.arrayBuffer();
-  state.rows = parseTable(decodeCsv(buffer));
-  state.sourceName = file.name;
+  const files = [...(event.target.files || [])];
+  if (!files.length) return;
+  const loaded = [];
+  for (const file of files) {
+    const buffer = await file.arrayBuffer();
+    loaded.push(...parseTable(decodeCsv(buffer), file.name));
+  }
+  state.rows = loaded;
+  state.sourceName = files.length === 1 ? files[0].name : `${files.length.toLocaleString("ko-KR")}개 CSV`;
   state.selectedCompany = null;
   setInitialDates();
-  els.fileName.textContent = `${file.name} · ${state.rows.length.toLocaleString("ko-KR")}행`;
+  els.fileName.textContent = `${state.sourceName} · ${state.rows.length.toLocaleString("ko-KR")}행`;
   render();
 });
-
 els.itemSelect.addEventListener("change", () => { state.selectedItem = els.itemSelect.value; state.selectedCompany = null; render(); });
 els.metricSelect.addEventListener("change", () => { state.metric = els.metricSelect.value; state.selectedCompany = null; render(); });
 
@@ -366,6 +405,8 @@ els.treemap.addEventListener("click", event => {
 });
 window.addEventListener("resize", () => render());
 loadSample();
+
+
 
 
 
