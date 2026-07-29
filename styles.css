@@ -125,7 +125,7 @@ h2 { margin-bottom: 4px; font-size: 18px; }
 .companyStat span { display: block; color: var(--muted); font-size: 12px; font-weight: 800; }
 .companyStat strong { display: block; margin-top: 5px; font-size: 16px; }
 .tableWrap { max-height: 440px; overflow: auto; }
-table { width: 100%; min-width: 1180px; border-collapse: collapse; font-size: 13px; }
+table { width: 100%; min-width: 1320px; border-collapse: collapse; font-size: 13px; }
 th, td { border-bottom: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
 th { position: sticky; top: 0; background: #f8fafc; z-index: 1; color: #475569; font-size: 12px; white-space: nowrap; }
 td { color: #253046; min-width: 92px; }
@@ -160,6 +160,7 @@ td { color: #253046; min-width: 92px; }
   .treemap { min-height: 520px; height: 66vh; }
   .companyStats { grid-template-columns: 1fr; }
 }
+
 
 
 

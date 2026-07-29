@@ -120,6 +120,38 @@ function isMasContract(row) {
   return isTruthyFlag(row["MAS여부"]);
 }
 
+function isFinalContract(row) {
+  const value = String(row["최종계약(납품요구)여부"] ?? "").trim().toUpperCase();
+  return !value || value === "Y" || value === "YES" || value === "TRUE" || value === "1";
+}
+
+function formatDate(value) {
+  const date = toDateInput(value);
+  return date || "-";
+}
+
+function uniqueContractRows(rows) {
+  const seen = new Set();
+  return rows.filter(row => {
+    const itemIdentity = [row["물품식별번호"], row["품목명"]].filter(Boolean).join(" / ");
+    const methodType = [row["조달방식"], row["계약구분"], row["계약방법"]].filter(Boolean).join(" / ");
+    const key = [
+      formatDate(row["계약(납품요구)일자"]),
+      row["조달방식"],
+      row["세부품명"],
+      itemIdentity,
+      methodType,
+      row["업체명"],
+      row["수요기관"],
+      row["계약(납품요구)명"],
+      toNumber(row["공급금액"]),
+    ].join("\u001f");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function filteredRows() {
   return state.rows.filter(row => {
     const date = toDateInput(row["계약(납품요구)일자"]);
@@ -130,7 +162,7 @@ function filteredRows() {
     const matchesSearch = !state.search || row["업체명"].toLowerCase().includes(state.search.toLowerCase());
     const matchesExcellent = state.procurementFilter !== "excellent" || isExcellentProcurement(row);
     const matchesMas = state.procurementFilter !== "mas" || isMasContract(row);
-    return matchesItem && afterStart && beforeEnd && matchesSearch && matchesExcellent && matchesMas;
+    return isFinalContract(row) && matchesItem && afterStart && beforeEnd && matchesSearch && matchesExcellent && matchesMas;
   });
 }
 
@@ -251,23 +283,26 @@ function renderDetails(grouped) {
     els.detailTitle.textContent = "업체 상세";
     els.detailSubTitle.textContent = "업체 타일을 선택하세요";
     els.companyStats.innerHTML = "";
-    els.detailRows.innerHTML = `<tr><td colspan="8" class="empty">선택된 업체가 없습니다.</td></tr>`;
+    els.detailRows.innerHTML = `<tr><td colspan="9" class="empty">선택된 업체가 없습니다.</td></tr>`;
     return;
   }
   els.detailTitle.textContent = selected.company;
-  els.detailSubTitle.textContent = `${state.selectedItem} · ${selected.rows.length.toLocaleString("ko-KR")}건`;
+  const detailRows = uniqueContractRows(selected.rows);
+  const duplicateCount = selected.rows.length - detailRows.length;
+  els.detailSubTitle.textContent = `${state.selectedItem} · ${detailRows.length.toLocaleString("ko-KR")}건${duplicateCount ? ` · 중복 ${duplicateCount.toLocaleString("ko-KR")}건 제외` : ""}`;
   els.companyStats.innerHTML = [
     ["계약금액", formatFullWon(selected.amount)],
     ["계약건수", `${selected.count.toLocaleString("ko-KR")}건`],
     ["평균 계약금액", formatFullWon(selected.amount / Math.max(selected.count, 1))],
   ].map(([label, value]) => `<div class="companyStat"><span>${label}</span><strong>${value}</strong></div>`).join("");
-  els.detailRows.innerHTML = selected.rows
+  els.detailRows.innerHTML = detailRows
     .slice()
     .sort((a, b) => toNumber(b["공급금액"]) - toNumber(a["공급금액"]))
     .map(row => {
       const itemIdentity = [row["물품식별번호"], row["품목명"]].filter(Boolean).join(" / ");
       const methodType = [row["조달방식"], row["계약구분"], row["계약방법"]].filter(Boolean).join(" / ");
       return `<tr>
+        <td>${formatDate(row["계약(납품요구)일자"])}</td>
         <td>${row["조달방식"] || "-"}</td>
         <td>${row["세부품명"] || "-"}</td>
         <td>${itemIdentity || "-"}</td>
@@ -279,9 +314,8 @@ function renderDetails(grouped) {
       </tr>`;
     }).join("");
 }
-
 function render() {
-  const rows = filteredRows();
+  const rows = uniqueContractRows(filteredRows());
   const grouped = aggregate(rows);
   const metricLabel = state.metric === "amount" ? "계약금액" : "계약건수";
   els.chartTitle.textContent = `${state.selectedItem} 업체별 ${metricLabel}`;
@@ -352,6 +386,10 @@ window.addEventListener("resize", () => render());
 
 renderFilters();
 loadSample();
+
+
+
+
 
 
 
