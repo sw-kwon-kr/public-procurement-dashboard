@@ -187,7 +187,8 @@ function filteredRows() {
     const matchesSearch = !state.search || row["업체명"].toLowerCase().includes(state.search.toLowerCase());
     const matchesExcellent = state.procurementFilter !== "excellent" || isExcellentProcurement(row);
     const matchesMas = state.procurementFilter !== "mas" || isMasContract(row);
-    return isFinalContract(row) && matchesItem && afterStart && beforeEnd && matchesSearch && matchesExcellent && matchesMas;
+    const matchesInnovation = state.procurementFilter !== "innovation" || row["자료구분"] === "혁신제품";
+    return isFinalContract(row) && matchesItem && afterStart && beforeEnd && matchesSearch && matchesExcellent && matchesMas && matchesInnovation;
   });
 }
 
@@ -339,7 +340,7 @@ function render() {
   const grouped = aggregate(rows);
   const metricLabel = state.metric === "amount" ? "계약금액" : "계약건수";
   els.chartTitle.textContent = `${state.selectedItem} 업체별 ${metricLabel}`;
-  const filterLabels = { all: "", excellent: "우수조달", mas: "MAS" };
+  const filterLabels = { all: "", excellent: "우수조달", mas: "MAS", innovation: "혁신제품" };
   const activeFilter = filterLabels[state.procurementFilter] || "";
   els.chartSubTitle.textContent = `${state.dateFrom || "전체"} ~ ${state.dateTo || "전체"} · ${activeFilter ? `${activeFilter} · ` : ""}${metricLabel} 기준 면적 표시`;
   renderSummary(rows, grouped);
@@ -405,6 +406,8 @@ els.treemap.addEventListener("click", event => {
 });
 window.addEventListener("resize", () => render());
 loadSample();
+
+
 
 
 
