@@ -71,7 +71,13 @@ function inferItem(row) {
   return ITEM_OPTIONS.find(option => text.includes(option.name));
 }
 
+function isExcludedInnovationItem(row) {
+  const text = [row["품목명"], row["계약명"], row["계약(납품요구)명"], row["세부품명"]].filter(Boolean).join(" ");
+  return row["자료구분"] === "혁신제품" && text.includes("융복합안내전광판");
+}
+
 function isTargetItem(row) {
+  if (isExcludedInnovationItem(row)) return false;
   return ITEM_OPTIONS.some(option => row["세부품명번호"] === option.code || row["세부품명"] === option.name);
 }
 
@@ -406,6 +412,7 @@ els.treemap.addEventListener("click", event => {
 });
 window.addEventListener("resize", () => render());
 loadSample();
+
 
 
 
