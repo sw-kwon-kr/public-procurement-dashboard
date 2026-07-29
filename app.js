@@ -61,9 +61,14 @@ function normalizeRow(row, sourceName) {
     "공급금액": row["공급금액"] || row["계약(납품요구)금액"] || "0",
     "계약(납품요구)명": row["계약(납품요구)명"] || row["계약명"] || "",
     "최종계약(납품요구)여부": row["최종계약(납품요구)여부"] || "Y",
-    "자료구분": sourceName?.includes("혁신") || sourceName?.toLowerCase().includes("innovation") ? "혁신제품" : "특정품목",
+    "자료구분": isInnovationDataset(row, sourceName) ? "혁신제품" : "특정품목",
     "원본파일": sourceName || "업로드 CSV",
   };
+}
+
+function isInnovationDataset(row, sourceName) {
+  const name = String(sourceName || "").toLowerCase();
+  return name.includes("혁신") || name.includes("innovation") || Boolean(row["혁신지정구분"] || row["혁신지정기관명"] || row["인증번호"]);
 }
 
 function inferItem(row) {
@@ -346,7 +351,7 @@ function render() {
   const grouped = aggregate(rows);
   const metricLabel = state.metric === "amount" ? "계약금액" : "계약건수";
   els.chartTitle.textContent = `${state.selectedItem} 업체별 ${metricLabel}`;
-  const filterLabels = { all: "", excellent: "우수조달", mas: "MAS", innovation: "혁신제품" };
+  const filterLabels = { all: "일반+혁신", excellent: "우수조달", mas: "MAS", innovation: "혁신제품" };
   const activeFilter = filterLabels[state.procurementFilter] || "";
   els.chartSubTitle.textContent = `${state.dateFrom || "전체"} ~ ${state.dateTo || "전체"} · ${activeFilter ? `${activeFilter} · ` : ""}${metricLabel} 기준 면적 표시`;
   renderSummary(rows, grouped);
@@ -412,24 +417,4 @@ els.treemap.addEventListener("click", event => {
 });
 window.addEventListener("resize", () => render());
 loadSample();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
