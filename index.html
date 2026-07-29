@@ -32,16 +32,14 @@
           <button class="segment" data-metric="count">계약건수</button>
         </div>
       </div>
-      <div class="checkGroup">
-        <label class="checkFilter">
-          <input id="excellentOnly" type="checkbox" />
-          <span>우수조달만</span>
-        </label>
-        <label class="checkFilter">
-          <input id="masOnly" type="checkbox" />
-          <span>MAS만</span>
-        </label>
-      </div>
+      <label class="selectGroup">
+        <span class="label">계약 유형</span>
+        <select id="procurementFilter">
+          <option value="all">전체</option>
+          <option value="excellent">우수조달</option>
+          <option value="mas">MAS</option>
+        </select>
+      </label>
       <div class="dateGroup">
         <label>기간 시작<input id="dateFrom" type="date" /></label>
         <label>기간 종료<input id="dateTo" type="date" /></label>
@@ -97,5 +95,7 @@
   <script src="./app.js"></script>
 </body>
 </html>
+
+
 
 

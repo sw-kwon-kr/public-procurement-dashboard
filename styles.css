@@ -66,13 +66,11 @@ h2 { margin-bottom: 4px; font-size: 18px; }
 }
 .fieldGroup:first-child { grid-area: item; }
 .fieldGroup.compact { grid-area: metric; }
-.checkGroup { grid-area: checks; }
+.selectGroup { grid-area: checks; }
 .dateGroup { grid-area: dates; }
 .searchBox { grid-area: search; }
-.fieldGroup, .dateGroup, .searchBox { display: grid; gap: 6px; }
-.checkGroup { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-.checkFilter { display: flex; align-items: center; gap: 9px; min-height: 38px; color: var(--ink); font-size: 14px; font-weight: 900; border: 1px solid var(--line); border-radius: 6px; padding: 0 12px; background: #f8fafc; cursor: pointer; }
-.checkFilter input { width: 18px; height: 18px; accent-color: var(--blue); }
+.fieldGroup, .dateGroup, .searchBox, .selectGroup { display: grid; gap: 6px; }
+.selectGroup select { width: 100%; height: 38px; border: 1px solid var(--line); border-radius: 6px; padding: 0 10px; background: #fff; color: var(--ink); font-weight: 800; cursor: pointer; }
 .label, .dateGroup label, .searchBox { color: var(--muted); font-size: 12px; font-weight: 800; }
 .segments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .metricSegments { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -158,10 +156,12 @@ td { color: #253046; min-width: 92px; }
       "search";
   }
   .summaryGrid { grid-template-columns: 1fr; }
-  .segments, .dateGroup, .checkGroup { grid-template-columns: 1fr; }
+  .segments, .dateGroup { grid-template-columns: 1fr; }
   .treemap { min-height: 520px; height: 66vh; }
   .companyStats { grid-template-columns: 1fr; }
 }
+
+
 
 
 

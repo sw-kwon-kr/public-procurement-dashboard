@@ -13,8 +13,7 @@ const state = {
   dateFrom: "",
   dateTo: "",
   search: "",
-  excellentOnly: false,
-  masOnly: false,
+  procurementFilter: "all",
 };
 
 const els = {
@@ -24,8 +23,7 @@ const els = {
   dateFrom: document.querySelector("#dateFrom"),
   dateTo: document.querySelector("#dateTo"),
   companySearch: document.querySelector("#companySearch"),
-  excellentOnly: document.querySelector("#excellentOnly"),
-  masOnly: document.querySelector("#masOnly"),
+  procurementFilter: document.querySelector("#procurementFilter"),
   summaryGrid: document.querySelector("#summaryGrid"),
   treemap: document.querySelector("#treemap"),
   chartTitle: document.querySelector("#chartTitle"),
@@ -130,8 +128,8 @@ function filteredRows() {
     const afterStart = !state.dateFrom || date >= state.dateFrom;
     const beforeEnd = !state.dateTo || date <= state.dateTo;
     const matchesSearch = !state.search || row["업체명"].toLowerCase().includes(state.search.toLowerCase());
-    const matchesExcellent = !state.excellentOnly || isExcellentProcurement(row);
-    const matchesMas = !state.masOnly || isMasContract(row);
+    const matchesExcellent = state.procurementFilter !== "excellent" || isExcellentProcurement(row);
+    const matchesMas = state.procurementFilter !== "mas" || isMasContract(row);
     return matchesItem && afterStart && beforeEnd && matchesSearch && matchesExcellent && matchesMas;
   });
 }
@@ -287,8 +285,9 @@ function render() {
   const grouped = aggregate(rows);
   const metricLabel = state.metric === "amount" ? "계약금액" : "계약건수";
   els.chartTitle.textContent = `${state.selectedItem} 업체별 ${metricLabel}`;
-  const activeFlags = [state.excellentOnly ? "우수조달만" : "", state.masOnly ? "MAS만" : ""].filter(Boolean).join(" · ");
-  els.chartSubTitle.textContent = `${state.dateFrom || "전체"} ~ ${state.dateTo || "전체"} · ${activeFlags ? `${activeFlags} · ` : ""}${metricLabel} 기준 면적 표시`;
+  const filterLabels = { all: "", excellent: "우수조달", mas: "MAS" };
+  const activeFilter = filterLabels[state.procurementFilter] || "";
+  els.chartSubTitle.textContent = `${state.dateFrom || "전체"} ~ ${state.dateTo || "전체"} · ${activeFilter ? `${activeFilter} · ` : ""}${metricLabel} 기준 면적 표시`;
   renderFilters();
   renderSummary(rows, grouped);
   renderTreemap(grouped);
@@ -341,8 +340,7 @@ document.querySelectorAll("button[data-metric]").forEach(button => {
 els.dateFrom.addEventListener("change", () => { state.dateFrom = els.dateFrom.value; state.selectedCompany = null; render(); });
 els.dateTo.addEventListener("change", () => { state.dateTo = els.dateTo.value; state.selectedCompany = null; render(); });
 els.companySearch.addEventListener("input", () => { state.search = els.companySearch.value.trim(); state.selectedCompany = null; render(); });
-els.excellentOnly.addEventListener("change", () => { state.excellentOnly = els.excellentOnly.checked; state.selectedCompany = null; render(); });
-els.masOnly.addEventListener("change", () => { state.masOnly = els.masOnly.checked; state.selectedCompany = null; render(); });
+els.procurementFilter.addEventListener("change", () => { state.procurementFilter = els.procurementFilter.value; state.selectedCompany = null; render(); });
 els.resetSelection.addEventListener("click", () => { state.selectedCompany = null; render(); });
 els.treemap.addEventListener("click", event => {
   const tile = event.target.closest(".tile");
@@ -354,6 +352,8 @@ window.addEventListener("resize", () => render());
 
 renderFilters();
 loadSample();
+
+
 
 
 
