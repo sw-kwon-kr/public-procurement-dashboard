@@ -57,27 +57,22 @@ h2 { margin-bottom: 4px; font-size: 18px; }
   border-radius: 8px;
   padding: 12px;
   display: grid;
-  grid-template-columns: minmax(360px, 1.45fr) minmax(190px, .7fr) minmax(260px, .95fr) minmax(260px, .95fr);
+  grid-template-columns: minmax(260px, 1fr) minmax(180px, .7fr) minmax(220px, .85fr);
   grid-template-areas:
-    "item metric dates search"
-    "checks checks dates .";
+    "item metric type"
+    "dates dates search";
   gap: 12px;
   align-items: end;
 }
-.fieldGroup:first-child { grid-area: item; }
-.fieldGroup.compact { grid-area: metric; }
-.selectGroup { grid-area: checks; }
+.itemSelectGroup { grid-area: item; }
+.metricSelectGroup { grid-area: metric; }
+.typeSelectGroup { grid-area: type; }
 .dateGroup { grid-area: dates; }
 .searchBox { grid-area: search; }
-.fieldGroup, .dateGroup, .searchBox, .selectGroup { display: grid; gap: 6px; }
-.selectGroup select { width: 100%; height: 38px; border: 1px solid var(--line); border-radius: 6px; padding: 0 10px; background: #fff; color: var(--ink); font-weight: 800; cursor: pointer; }
+.dateGroup, .searchBox, .selectGroup { display: grid; gap: 6px; }
 .label, .dateGroup label, .searchBox { color: var(--muted); font-size: 12px; font-weight: 800; }
-.segments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.metricSegments { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.segment { padding: 0 10px; font-weight: 800; color: #334155; }
-.segment.active { background: var(--ink); border-color: var(--ink); color: #fff; }
 .dateGroup { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.dateGroup input, .searchBox input {
+.selectGroup select, .dateGroup input, .searchBox input {
   margin-top: 6px;
   width: 100%;
   height: 38px;
@@ -86,7 +81,9 @@ h2 { margin-bottom: 4px; font-size: 18px; }
   padding: 0 10px;
   background: #fff;
   color: var(--ink);
+  font-weight: 800;
 }
+.selectGroup select { cursor: pointer; }
 .summaryGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
 .summaryCard { border-radius: 8px; padding: 14px; }
 .summaryCard span { display: block; color: var(--muted); font-size: 12px; font-weight: 800; }
@@ -137,9 +134,9 @@ td { color: #253046; min-width: 92px; }
   .filters {
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
-      "item item"
-      "metric checks"
-      "dates search";
+      "item metric"
+      "type search"
+      "dates dates";
   }
   .detailPanel { min-height: auto; }
 }
@@ -151,15 +148,16 @@ td { color: #253046; min-width: 92px; }
     grid-template-areas:
       "item"
       "metric"
-      "checks"
+      "type"
       "dates"
       "search";
   }
   .summaryGrid { grid-template-columns: 1fr; }
-  .segments, .dateGroup { grid-template-columns: 1fr; }
+  .dateGroup { grid-template-columns: 1fr; }
   .treemap { min-height: 520px; height: 66vh; }
   .companyStats { grid-template-columns: 1fr; }
 }
+
 
 
 

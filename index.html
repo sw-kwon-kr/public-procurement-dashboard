@@ -21,18 +21,22 @@
     </header>
 
     <section class="filters" aria-label="분석 조건">
-      <div class="fieldGroup">
+      <label class="selectGroup itemSelectGroup">
         <span class="label">분야</span>
-        <div class="segments" id="itemFilters"></div>
-      </div>
-      <div class="fieldGroup compact">
+        <select id="itemSelect">
+          <option value="안내전광판">안내전광판</option>
+          <option value="기상전광판">기상전광판</option>
+          <option value="교통정보전광판">교통정보전광판</option>
+        </select>
+      </label>
+      <label class="selectGroup metricSelectGroup">
         <span class="label">지표</span>
-        <div class="segments metricSegments">
-          <button class="segment active" data-metric="amount">계약금액</button>
-          <button class="segment" data-metric="count">계약건수</button>
-        </div>
-      </div>
-      <label class="selectGroup">
+        <select id="metricSelect">
+          <option value="amount">계약금액</option>
+          <option value="count">계약건수</option>
+        </select>
+      </label>
+      <label class="selectGroup typeSelectGroup">
         <span class="label">계약 유형</span>
         <select id="procurementFilter">
           <option value="all">전체</option>
@@ -41,10 +45,10 @@
         </select>
       </label>
       <div class="dateGroup">
-        <label>기간 시작<input id="dateFrom" type="date" /></label>
-        <label>기간 종료<input id="dateTo" type="date" /></label>
+        <label>계약일자 시작<input id="dateFrom" type="date" /></label>
+        <label>계약일자 종료<input id="dateTo" type="date" /></label>
       </div>
-      <label class="searchBox">업체 검색<input id="companySearch" type="search" placeholder="업체명 입력" /></label>
+      <label class="searchBox">계약업체 검색<input id="companySearch" type="search" placeholder="업체명 입력" /></label>
     </section>
 
     <section class="summaryGrid" id="summaryGrid"></section>
@@ -96,6 +100,7 @@
   <script src="./app.js"></script>
 </body>
 </html>
+
 
 
 

@@ -17,12 +17,13 @@ const state = {
 };
 
 const els = {
-  itemFilters: document.querySelector("#itemFilters"),
+  itemSelect: document.querySelector("#itemSelect"),
   csvFile: document.querySelector("#csvFile"),
   fileName: document.querySelector("#fileName"),
   dateFrom: document.querySelector("#dateFrom"),
   dateTo: document.querySelector("#dateTo"),
   companySearch: document.querySelector("#companySearch"),
+  metricSelect: document.querySelector("#metricSelect"),
   procurementFilter: document.querySelector("#procurementFilter"),
   summaryGrid: document.querySelector("#summaryGrid"),
   treemap: document.querySelector("#treemap"),
@@ -180,11 +181,6 @@ function aggregate(rows) {
   return [...map.values()].sort((a, b) => b[key] - a[key] || b.amount - a.amount);
 }
 
-function renderFilters() {
-  els.itemFilters.innerHTML = ITEM_OPTIONS.map(option => `
-    <button class="segment ${state.selectedItem === option.name ? "active" : ""}" data-item="${option.name}">${option.name}</button>
-  `).join("");
-}
 
 function setInitialDates() {
   const dates = state.rows.map(row => toDateInput(row["계약(납품요구)일자"])).filter(Boolean).sort();
@@ -322,7 +318,6 @@ function render() {
   const filterLabels = { all: "", excellent: "우수조달", mas: "MAS" };
   const activeFilter = filterLabels[state.procurementFilter] || "";
   els.chartSubTitle.textContent = `${state.dateFrom || "전체"} ~ ${state.dateTo || "전체"} · ${activeFilter ? `${activeFilter} · ` : ""}${metricLabel} 기준 면적 표시`;
-  renderFilters();
   renderSummary(rows, grouped);
   renderTreemap(grouped);
   renderDetails(grouped);
@@ -355,21 +350,8 @@ els.csvFile.addEventListener("change", async event => {
   render();
 });
 
-els.itemFilters.addEventListener("click", event => {
-  const button = event.target.closest("button[data-item]");
-  if (!button) return;
-  state.selectedItem = button.dataset.item;
-  state.selectedCompany = null;
-  render();
-});
-
-document.querySelectorAll("button[data-metric]").forEach(button => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll("button[data-metric]").forEach(btn => btn.classList.toggle("active", btn === button));
-    state.metric = button.dataset.metric;
-    render();
-  });
-});
+els.itemSelect.addEventListener("change", () => { state.selectedItem = els.itemSelect.value; state.selectedCompany = null; render(); });
+els.metricSelect.addEventListener("change", () => { state.metric = els.metricSelect.value; state.selectedCompany = null; render(); });
 
 els.dateFrom.addEventListener("change", () => { state.dateFrom = els.dateFrom.value; state.selectedCompany = null; render(); });
 els.dateTo.addEventListener("change", () => { state.dateTo = els.dateTo.value; state.selectedCompany = null; render(); });
@@ -383,9 +365,10 @@ els.treemap.addEventListener("click", event => {
   render();
 });
 window.addEventListener("resize", () => render());
-
-renderFilters();
 loadSample();
+
+
+
 
 
 
