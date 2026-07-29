@@ -297,7 +297,7 @@ function renderDetails(grouped) {
   ].map(([label, value]) => `<div class="companyStat"><span>${label}</span><strong>${value}</strong></div>`).join("");
   els.detailRows.innerHTML = detailRows
     .slice()
-    .sort((a, b) => toNumber(b["공급금액"]) - toNumber(a["공급금액"]))
+    .sort((a, b) => toDateInput(b["계약(납품요구)일자"]).localeCompare(toDateInput(a["계약(납품요구)일자"])) || toNumber(b["공급금액"]) - toNumber(a["공급금액"]))
     .map(row => {
       const itemIdentity = [row["물품식별번호"], row["품목명"]].filter(Boolean).join(" / ");
       const methodType = [row["조달방식"], row["계약구분"], row["계약방법"]].filter(Boolean).join(" / ");
@@ -386,6 +386,7 @@ window.addEventListener("resize", () => render());
 
 renderFilters();
 loadSample();
+
 
 
 
