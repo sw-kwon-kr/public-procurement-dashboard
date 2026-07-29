@@ -13,6 +13,7 @@ const state = {
   dateFrom: "",
   dateTo: "",
   search: "",
+  excellentOnly: false,
 };
 
 const els = {
@@ -22,6 +23,7 @@ const els = {
   dateFrom: document.querySelector("#dateFrom"),
   dateTo: document.querySelector("#dateTo"),
   companySearch: document.querySelector("#companySearch"),
+  excellentOnly: document.querySelector("#excellentOnly"),
   summaryGrid: document.querySelector("#summaryGrid"),
   treemap: document.querySelector("#treemap"),
   chartTitle: document.querySelector("#chartTitle"),
@@ -105,6 +107,11 @@ function formatFullWon(value) {
   return `${Math.round(value).toLocaleString("ko-KR")}원`;
 }
 
+function isExcellentProcurement(row) {
+  const value = String(row["우수제품여부"] ?? "").trim().toUpperCase();
+  return value === "Y" || value === "YES" || value === "TRUE" || value === "1" || value.includes("우수") || value.includes("해당");
+}
+
 function filteredRows() {
   return state.rows.filter(row => {
     const date = toDateInput(row["계약(납품요구)일자"]);
@@ -113,7 +120,8 @@ function filteredRows() {
     const afterStart = !state.dateFrom || date >= state.dateFrom;
     const beforeEnd = !state.dateTo || date <= state.dateTo;
     const matchesSearch = !state.search || row["업체명"].toLowerCase().includes(state.search.toLowerCase());
-    return matchesItem && afterStart && beforeEnd && matchesSearch;
+    const matchesExcellent = !state.excellentOnly || isExcellentProcurement(row);
+    return matchesItem && afterStart && beforeEnd && matchesSearch && matchesExcellent;
   });
 }
 
@@ -268,7 +276,7 @@ function render() {
   const grouped = aggregate(rows);
   const metricLabel = state.metric === "amount" ? "계약금액" : "계약건수";
   els.chartTitle.textContent = `${state.selectedItem} 업체별 ${metricLabel}`;
-  els.chartSubTitle.textContent = `${state.dateFrom || "전체"} ~ ${state.dateTo || "전체"} · ${metricLabel} 기준 면적 표시`;
+  els.chartSubTitle.textContent = `${state.dateFrom || "전체"} ~ ${state.dateTo || "전체"} · ${state.excellentOnly ? "우수조달만 · " : ""}${metricLabel} 기준 면적 표시`;
   renderFilters();
   renderSummary(rows, grouped);
   renderTreemap(grouped);
@@ -321,6 +329,7 @@ document.querySelectorAll("button[data-metric]").forEach(button => {
 els.dateFrom.addEventListener("change", () => { state.dateFrom = els.dateFrom.value; state.selectedCompany = null; render(); });
 els.dateTo.addEventListener("change", () => { state.dateTo = els.dateTo.value; state.selectedCompany = null; render(); });
 els.companySearch.addEventListener("input", () => { state.search = els.companySearch.value.trim(); state.selectedCompany = null; render(); });
+els.excellentOnly.addEventListener("change", () => { state.excellentOnly = els.excellentOnly.checked; state.selectedCompany = null; render(); });
 els.resetSelection.addEventListener("click", () => { state.selectedCompany = null; render(); });
 els.treemap.addEventListener("click", event => {
   const tile = event.target.closest(".tile");
@@ -332,4 +341,8 @@ window.addEventListener("resize", () => render());
 
 renderFilters();
 loadSample();
+
+
+
+
 

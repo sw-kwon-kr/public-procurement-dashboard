@@ -57,11 +57,13 @@ h2 { margin-bottom: 4px; font-size: 18px; }
   border-radius: 8px;
   padding: 12px;
   display: grid;
-  grid-template-columns: minmax(360px, 1.5fr) minmax(190px, .7fr) minmax(300px, .9fr) minmax(220px, .8fr);
+  grid-template-columns: minmax(360px, 1.5fr) minmax(190px, .65fr) minmax(150px, .45fr) minmax(300px, .9fr) minmax(220px, .8fr);
   gap: 12px;
   align-items: end;
 }
 .fieldGroup, .dateGroup, .searchBox { display: grid; gap: 6px; }
+.checkFilter { display: flex; align-items: center; gap: 9px; min-height: 38px; color: var(--ink); font-size: 14px; font-weight: 900; border: 1px solid var(--line); border-radius: 6px; padding: 0 12px; background: #f8fafc; cursor: pointer; }
+.checkFilter input { width: 18px; height: 18px; accent-color: var(--blue); }
 .label, .dateGroup label, .searchBox { color: var(--muted); font-size: 12px; font-weight: 800; }
 .segments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .metricSegments { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -82,7 +84,7 @@ h2 { margin-bottom: 4px; font-size: 18px; }
 .summaryCard { border-radius: 8px; padding: 14px; }
 .summaryCard span { display: block; color: var(--muted); font-size: 12px; font-weight: 800; }
 .summaryCard strong { display: block; margin-top: 8px; font-size: 23px; line-height: 1.1; }
-.workspace { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(420px, .85fr); gap: 12px; margin-top: 12px; align-items: start; }
+.workspace { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 12px; align-items: start; }
 .chartPanel, .detailPanel { border-radius: 8px; overflow: hidden; }
 .panelHead { min-height: 68px; display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); }
 .panelHead p { margin-bottom: 0; color: var(--muted); font-size: 13px; }
@@ -109,13 +111,13 @@ h2 { margin-bottom: 4px; font-size: 18px; }
 .tileMeta { margin-top: 4px; font-size: 12px; opacity: .92; }
 .tileTiny .tileMeta, .tileTiny .tileValue { display: none; }
 .tileTiny { padding: 4px; }
-.detailPanel { min-height: 620px; }
+.detailPanel { min-height: 0; }
 .detailHead { min-height: 68px; }
 .companyStats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 12px; border-bottom: 1px solid var(--line); }
 .companyStat { background: #f8fafc; border: 1px solid var(--line); border-radius: 6px; padding: 10px; }
 .companyStat span { display: block; color: var(--muted); font-size: 12px; font-weight: 800; }
 .companyStat strong { display: block; margin-top: 5px; font-size: 16px; }
-.tableWrap { max-height: 520px; overflow: auto; }
+.tableWrap { max-height: 440px; overflow: auto; }
 table { width: 100%; min-width: 1180px; border-collapse: collapse; font-size: 13px; }
 th, td { border-bottom: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
 th { position: sticky; top: 0; background: #f8fafc; z-index: 1; color: #475569; font-size: 12px; white-space: nowrap; }
@@ -137,4 +139,7 @@ td { color: #253046; min-width: 92px; }
   .treemap { min-height: 520px; height: 66vh; }
   .companyStats { grid-template-columns: 1fr; }
 }
+
+
+
 
