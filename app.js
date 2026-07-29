@@ -172,7 +172,10 @@ function uniqueContractRows(rows) {
     const itemIdentity = [row["물품식별번호"], row["품목명"]].filter(Boolean).join(" / ");
     const methodType = [row["조달방식"], row["계약구분"], row["계약방법"]].filter(Boolean).join(" / ");
     const key = [
+      row["자료구분"],
+      row["원본파일"],
       formatDate(row["계약(납품요구)일자"]),
+      row["계약(납품요구)번호"],
       row["조달방식"],
       row["세부품명"],
       itemIdentity,
@@ -351,7 +354,7 @@ function render() {
   const grouped = aggregate(rows);
   const metricLabel = state.metric === "amount" ? "계약금액" : "계약건수";
   els.chartTitle.textContent = `${state.selectedItem} 업체별 ${metricLabel}`;
-  const filterLabels = { all: "일반+혁신", excellent: "우수조달", mas: "MAS", innovation: "혁신제품" };
+  const filterLabels = { all: "전체", excellent: "우수조달", mas: "MAS", innovation: "혁신제품" };
   const activeFilter = filterLabels[state.procurementFilter] || "";
   els.chartSubTitle.textContent = `${state.dateFrom || "전체"} ~ ${state.dateTo || "전체"} · ${activeFilter ? `${activeFilter} · ` : ""}${metricLabel} 기준 면적 표시`;
   renderSummary(rows, grouped);
