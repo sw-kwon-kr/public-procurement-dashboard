@@ -57,11 +57,12 @@ h2 { margin-bottom: 4px; font-size: 18px; }
   border-radius: 8px;
   padding: 12px;
   display: grid;
-  grid-template-columns: minmax(360px, 1.5fr) minmax(190px, .65fr) minmax(150px, .45fr) minmax(300px, .9fr) minmax(220px, .8fr);
+  grid-template-columns: minmax(360px, 1.35fr) minmax(190px, .6fr) minmax(250px, .7fr) minmax(300px, .9fr) minmax(220px, .75fr);
   gap: 12px;
   align-items: end;
 }
 .fieldGroup, .dateGroup, .searchBox { display: grid; gap: 6px; }
+.checkGroup { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .checkFilter { display: flex; align-items: center; gap: 9px; min-height: 38px; color: var(--ink); font-size: 14px; font-weight: 900; border: 1px solid var(--line); border-radius: 6px; padding: 0 12px; background: #f8fafc; cursor: pointer; }
 .checkFilter input { width: 18px; height: 18px; accent-color: var(--blue); }
 .label, .dateGroup label, .searchBox { color: var(--muted); font-size: 12px; font-weight: 800; }
@@ -139,6 +140,8 @@ td { color: #253046; min-width: 92px; }
   .treemap { min-height: 520px; height: 66vh; }
   .companyStats { grid-template-columns: 1fr; }
 }
+
+
 
 
 
