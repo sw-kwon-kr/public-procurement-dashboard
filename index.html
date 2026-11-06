@@ -9,7 +9,7 @@
       document.documentElement.dataset.theme = localStorage.getItem("procurement-theme") === "dark" ? "dark" : "light";
     } catch { document.documentElement.dataset.theme = "light"; }
   </script>
-  <link rel="stylesheet" href="./styles.css?v=themes-20261106" />
+  <link rel="stylesheet" href="./styles.css?v=contract-filters-20261106" />
 </head>
 <body>
   <main class="shell">
@@ -64,6 +64,17 @@
           <option value="excellent">우수조달</option>
           <option value="mas">MAS</option>
           <option value="innovation">혁신제품</option>
+          <option value="general">일반</option>
+        </select>
+      </label>
+      <label class="selectGroup methodSelectGroup">
+        <span class="label">계약방법</span>
+        <select id="contractMethod">
+          <option value="all">전체</option>
+          <option value="수의계약">수의계약</option>
+          <option value="일반경쟁">일반경쟁</option>
+          <option value="제한경쟁">제한경쟁</option>
+          <option value="지명경쟁">지명경쟁</option>
         </select>
       </label>
       <div class="dateGroup">
@@ -129,6 +140,6 @@
 
   <script src="./vendor/papaparse.js"></script>
   <script src="./data-model.js"></script>
-  <script src="./app.js?v=themes-20261106"></script>
+  <script src="./app.js?v=contract-filters-20261106"></script>
 </body>
 </html>

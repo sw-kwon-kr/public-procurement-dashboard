@@ -121,25 +121,27 @@ h2 { margin-bottom: 4px; font-size: 18px; }
   border-radius: 8px;
   padding: 12px;
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(180px, .7fr) minmax(220px, .85fr);
+  grid-template-columns: minmax(180px, 1.2fr) minmax(140px, .8fr) repeat(2, minmax(160px, 1fr));
   grid-template-areas:
-    "item metric type"
-    "dates dates search";
+    "item metric type method"
+    "dates dates search search";
   gap: 12px;
   align-items: end;
 }
 .itemSelectGroup { grid-area: item; }
 .metricSelectGroup { grid-area: metric; }
 .typeSelectGroup { grid-area: type; }
+.methodSelectGroup { grid-area: method; }
 .dateGroup { grid-area: dates; }
 .searchBox { grid-area: search; }
-.dateGroup, .searchBox, .selectGroup { display: grid; gap: 6px; }
+.dateGroup, .searchBox, .selectGroup { display: grid; gap: 6px; min-width: 0; }
 .label, .dateGroup label, .searchBox { color: var(--muted); font-size: 12px; font-weight: 800; }
 .dateGroup { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .selectGroup select, .dateGroup input, .searchBox input {
   margin-top: 6px;
   width: 100%;
   height: 38px;
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 0 10px;
@@ -199,8 +201,8 @@ td { color: var(--table-ink); min-width: 92px; }
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
       "item metric"
-      "type search"
-      "dates dates";
+      "type method"
+      "dates search";
   }
   .detailPanel { min-height: auto; }
 }
@@ -225,6 +227,7 @@ td { color: var(--table-ink); min-width: 92px; }
       "item"
       "metric"
       "type"
+      "method"
       "dates"
       "search";
   }

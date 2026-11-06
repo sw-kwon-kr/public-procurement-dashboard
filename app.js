@@ -14,6 +14,7 @@ const state = {
   dateTo: "",
   search: "",
   procurementFilter: "all",
+  contractMethod: "all",
 };
 
 const els = {
@@ -24,6 +25,7 @@ const els = {
   companySearch: document.querySelector("#companySearch"),
   metricSelect: document.querySelector("#metricSelect"),
   procurementFilter: document.querySelector("#procurementFilter"),
+  contractMethod: document.querySelector("#contractMethod"),
   summaryGrid: document.querySelector("#summaryGrid"),
   treemap: document.querySelector("#treemap"),
   companyList: document.querySelector("#companyList"),
@@ -76,7 +78,7 @@ function formatFullWon(value) {
 
 function isTruthyFlag(value) {
   const normalized = String(value ?? "").trim().toUpperCase();
-  return normalized === "Y" || normalized === "YES" || normalized === "TRUE" || normalized === "1" || normalized.includes("우수") || normalized.includes("해당");
+  return ["Y", "YES", "TRUE", "1", "우수", "우수제품", "해당"].includes(normalized);
 }
 
 function isExcellentProcurement(row) {
@@ -90,6 +92,20 @@ function isMasContract(row) {
 function isFinalContract(row) {
   const value = String(row["최종계약(납품요구)여부"] ?? "").trim().toUpperCase();
   return !value || value === "Y" || value === "YES" || value === "TRUE" || value === "1";
+}
+
+function isInnovationProduct(row) {
+  return row._innovation === true || row["자료구분"] === "혁신제품";
+}
+
+function matchesProcurementType(row) {
+  switch (state.procurementFilter) {
+    case "excellent": return isExcellentProcurement(row);
+    case "mas": return isMasContract(row);
+    case "innovation": return isInnovationProduct(row);
+    case "general": return !isExcellentProcurement(row) && !isMasContract(row) && !isInnovationProduct(row);
+    default: return true;
+  }
 }
 
 function formatDate(value) {
@@ -109,10 +125,8 @@ function filteredRows() {
     const afterStart = !state.dateFrom || date >= state.dateFrom;
     const beforeEnd = !state.dateTo || date <= state.dateTo;
     const matchesSearch = !state.search || row["업체명"].toLowerCase().includes(state.search.toLowerCase());
-    const matchesExcellent = state.procurementFilter !== "excellent" || isExcellentProcurement(row);
-    const matchesMas = state.procurementFilter !== "mas" || isMasContract(row);
-    const matchesInnovation = state.procurementFilter !== "innovation" || Boolean(row._innovation);
-    return isFinalContract(row) && matchesItem && afterStart && beforeEnd && matchesSearch && matchesExcellent && matchesMas && matchesInnovation;
+    const matchesMethod = state.contractMethod === "all" || String(row["계약방법"] || "").trim() === state.contractMethod;
+    return isFinalContract(row) && matchesItem && afterStart && beforeEnd && matchesSearch && matchesProcurementType(row) && matchesMethod;
   });
 }
 
@@ -286,10 +300,11 @@ function render() {
   const grouped = aggregate(rows);
   const metricLabel = state.metric === "amount" ? "계약금액" : "계약건수";
   els.chartTitle.textContent = `${state.selectedItem} 업체별 ${metricLabel}`;
-  const filterLabels = { all: "전체", excellent: "우수조달", mas: "MAS", innovation: "혁신제품" };
+  const filterLabels = { all: "전체", excellent: "우수조달", mas: "MAS", innovation: "혁신제품", general: "일반" };
   const activeFilter = filterLabels[state.procurementFilter] || "";
   const displayLabel = state.chartView === "list" ? metricLabel + (state.metric === "amount" ? " 높은 순" : " 많은 순") : metricLabel + " 기준 면적 표시";
-  els.chartSubTitle.textContent = `${state.dateFrom || "전체"} ~ ${state.dateTo || "전체"} · ${activeFilter ? `${activeFilter} · ` : ""}${displayLabel}`;
+  const methodLabel = state.contractMethod === "all" ? "" : state.contractMethod + " · ";
+  els.chartSubTitle.textContent = `${state.dateFrom || "전체"} ~ ${state.dateTo || "전체"} · ${activeFilter ? `${activeFilter} · ` : ""}${methodLabel}${displayLabel}`;
   renderSummary(rows, grouped);
   els.treemap.hidden = state.chartView !== "tiles";
   els.companyList.hidden = state.chartView !== "list";
@@ -337,6 +352,7 @@ els.dateFrom.addEventListener("change", () => { state.dateFrom = els.dateFrom.va
 els.dateTo.addEventListener("change", () => { state.dateTo = els.dateTo.value; state.selectedCompany = null; render(); });
 els.companySearch.addEventListener("input", () => { state.search = els.companySearch.value.trim(); state.selectedCompany = null; render(); });
 els.procurementFilter.addEventListener("change", () => { state.procurementFilter = els.procurementFilter.value; state.selectedCompany = null; render(); });
+els.contractMethod.addEventListener("change", () => { state.contractMethod = els.contractMethod.value; state.selectedCompany = null; render(); });
 els.resetSelection.addEventListener("click", () => { state.selectedCompany = null; render(); });
 function selectCompany(event) {
   const target = event.target.closest("[data-company]");
