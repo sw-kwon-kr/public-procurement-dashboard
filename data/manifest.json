@@ -1,27 +1,27 @@
 {
   "schemaVersion": 1,
   "rulesVersion": "2",
-  "version": "ae099a3bcb92635fa4ee",
-  "publishedAt": "2026-11-06T02:33:16.235Z",
+  "version": "b19b61c0f89fa3a89e4b",
+  "publishedAt": "2026-11-06T02:37:38.580Z",
   "summary": {
-    "count": 2380,
-    "amount": 238528227513,
-    "companies": 458,
+    "count": 2848,
+    "amount": 264014636875,
+    "companies": 487,
     "from": "2026-01-02",
     "to": "2026-10-30"
   },
   "sources": [
     {
       "type": "procurement",
-      "filename": "20261106 특정품목 조달 내역.csv",
-      "sha256": "c2c35c46d4c235be67fbc7354ad5a6b069fafa60271fbcae03679237c716a8b7",
-      "bytes": 2429578,
-      "source": "20261106 특정품목 조달 내역.csv",
-      "original": 2627,
-      "target": 2379,
+      "filename": "20261106 특정품목 조달 내역 (2).csv",
+      "sha256": "a4375422c7178b85e10153907974e916ba4312de1f81806f274797535081ea1a",
+      "bytes": 2901764,
+      "source": "20261106 특정품목 조달 내역 (2).csv",
+      "original": 3135,
+      "target": 2847,
       "excluded": 0,
       "inferred": 0,
-      "nonFinal": 248
+      "nonFinal": 288
     },
     {
       "type": "innovation",
@@ -42,5 +42,5 @@
     "adjustedInnovationContracts": 4
   },
   "dataFile": "contracts.json",
-  "dataSha256": "8d0137dd0c88b318e6b34582ee1cf17c830b10a9df5dac9cd48cdc55d648d4c8"
+  "dataSha256": "6b38a3f5ab761b41b7d2644c2d37364499fe482779b413b98ffd4bb903e305d1"
 }
