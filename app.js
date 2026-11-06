@@ -6,7 +6,6 @@
 
 const state = {
   rows: [],
-  sourceName: "sample-procurement.csv",
   selectedItem: ITEM_OPTIONS[0].name,
   metric: "amount",
   selectedCompany: null,
@@ -18,7 +17,6 @@ const state = {
 
 const els = {
   itemSelect: document.querySelector("#itemSelect"),
-  csvFile: document.querySelector("#csvFile"),
   fileName: document.querySelector("#fileName"),
   dateFrom: document.querySelector("#dateFrom"),
   dateTo: document.querySelector("#dateTo"),
@@ -35,13 +33,6 @@ const els = {
   companyStats: document.querySelector("#companyStats"),
   resetSelection: document.querySelector("#resetSelection"),
 };
-
-function parseTable(text, sourceName = "") {
-  return ProcurementData.parse(text, sourceName).rows;
-}
-function decodeCsv(buffer) {
-  return ProcurementData.decode(buffer);
-}
 
 function toNumber(value) {
   const numeric = String(value ?? "0").replace(/,/g, "").replace(/[^0-9.-]/g, "");
@@ -263,63 +254,36 @@ function render() {
   renderDetails(grouped);
 }
 
-async function loadSample() {
+async function loadPublishedData() {
   try {
     const response = await fetch("./data/manifest.json", { cache: "no-store" });
-    if (response.status === 404) {
-      const loaded = [];
-      for (const file of ["sample-procurement.csv", "sample-innovation.csv"]) {
-        const res = await fetch("./data/" + file);
-        if (!res.ok) throw new Error("기본 CSV를 읽지 못했습니다.");
-        loaded.push(...parseTable(decodeCsv(await res.arrayBuffer()), file));
-      }
-      state.rows = uniqueContractRows(loaded);
-      els.fileName.textContent = "기본 CSV · " + state.rows.length.toLocaleString("ko-KR") + "건";
-      document.querySelector("#dataStatus").textContent = "게시 버전 정보 없음";
-    } else {
-      if (!response.ok) throw new Error("갱신 정보를 읽지 못했습니다.");
-      const manifest = await response.json();
-      if (manifest.schemaVersion !== 1 || !/^[a-f0-9]{20}$/.test(manifest.version)) throw new Error("지원하지 않는 데이터 버전입니다.");
-      const res = await fetch("./data/contracts.json?v=" + manifest.version, { cache: "no-store" });
-      if (!res.ok) throw new Error("게시 데이터를 읽지 못했습니다.");
-      const buffer = await res.arrayBuffer();
-      const checksum = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", buffer)), b => b.toString(16).padStart(2, "0")).join("");
-      if (checksum !== manifest.dataSha256) throw new Error("데이터 배포 중입니다. 잠시 후 새로고침하세요.");
-      state.rows = JSON.parse(new TextDecoder().decode(buffer));
-      const summary = ProcurementData.summarize(state.rows);
-      if (summary.count !== manifest.summary.count || summary.amount !== manifest.summary.amount) throw new Error("게시 집계 검증 실패");
-      els.fileName.textContent = "게시 자료 · " + summary.count.toLocaleString("ko-KR") + "건";
-      document.querySelector("#dataStatus").textContent = "반영 " + new Date(manifest.publishedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
-        + " · 계약기간 " + summary.from + " ~ " + summary.to + " · 버전 " + manifest.version;
-    }
+    if (!response.ok) throw new Error("게시 자료를 불러오지 못했습니다.");
+    const manifest = await response.json();
+    if (manifest.schemaVersion !== 1 || !/^[a-f0-9]{20}$/.test(manifest.version)) throw new Error("지원하지 않는 데이터 버전입니다.");
+    const res = await fetch("./data/contracts.json?v=" + manifest.version, { cache: "no-store" });
+    if (!res.ok) throw new Error("게시 데이터를 읽지 못했습니다.");
+    const buffer = await res.arrayBuffer();
+    const checksum = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", buffer)), b => b.toString(16).padStart(2, "0")).join("");
+    if (checksum !== manifest.dataSha256) throw new Error("데이터 배포 중입니다. 잠시 후 새로고침하세요.");
+    state.rows = JSON.parse(new TextDecoder().decode(buffer));
+    const summary = ProcurementData.summarize(state.rows);
+    if (summary.count !== manifest.summary.count || summary.amount !== manifest.summary.amount) throw new Error("게시 집계 검증 실패");
+    els.fileName.textContent = "게시 자료 · " + summary.count.toLocaleString("ko-KR") + "건";
+    document.querySelector("#publishedAt").textContent = new Date(manifest.publishedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+    document.querySelector("#datasetPeriod").textContent = summary.from + " ~ " + summary.to;
+    document.querySelector("#datasetVersion").textContent = manifest.version;
+    document.querySelector("#sourceFiles").textContent = (manifest.sources || []).map(s => s.filename).join(" / ") || "-";
+    document.querySelector("#validationInfo").textContent = "중복 " + (manifest.validation?.duplicates || 0) + "건 정리 · 혁신 최종금액 " + (manifest.validation?.adjustedInnovationContracts || 0) + "건 반영";
+    document.querySelector("#dataStatus").textContent = "게시 검증 완료 · 버전 " + manifest.version;
     state.selectedCompany = null;
     setInitialDates();
     render();
   } catch (error) {
     els.fileName.textContent = "자료 로딩 실패";
     els.treemap.textContent = error.message;
-    document.querySelector("#dataStatus").textContent = "갱신 확인 실패";
+    document.querySelector("#dataStatus").textContent = "게시 자료 확인 실패";
   }
 }
-
-els.csvFile.addEventListener("change", async event => {
-  const files = [...(event.target.files || [])];
-  if (!files.length) return;
-  try {
-    const loaded = [];
-    for (const file of files) loaded.push(...parseTable(decodeCsv(await file.arrayBuffer()), file.name));
-    const rows = uniqueContractRows(loaded);
-    if (!rows.length) throw new Error("대상 계약이 없습니다.");
-    state.rows = rows;
-    state.selectedCompany = null;
-    setInitialDates();
-    els.fileName.textContent = files.length + "개 CSV · " + rows.length.toLocaleString("ko-KR") + "건";
-    document.querySelector("#dataStatus").textContent = "수동 업로드 자료 · 이 화면에만 적용";
-    render();
-  } catch(error) {
-    document.querySelector("#dataStatus").textContent = "업로드 실패: " + error.message;
-  }
-});
 els.itemSelect.addEventListener("change", () => { state.selectedItem = els.itemSelect.value; state.selectedCompany = null; render(); });
 els.metricSelect.addEventListener("change", () => { state.metric = els.metricSelect.value; state.selectedCompany = null; render(); });
 
@@ -335,5 +299,5 @@ els.treemap.addEventListener("click", event => {
   render();
 });
 window.addEventListener("resize", () => render());
-loadSample();
+loadPublishedData();
 

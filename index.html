@@ -13,14 +13,23 @@
         <p class="eyebrow">Public Procurement Dashboard</p>
         <h1>조달 계약 분석</h1>
       </div>
-      <div class="uploadBox">
-        <label class="uploadButton" for="csvFile">CSV 업로드</label>
-        <input id="csvFile" type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values" multiple />
-        <span id="fileName" class="fileName">샘플 CSV 로딩 중</span>
+      <div class="datasetBadge">
+        <span class="datasetLabel">폴더 분석 자료</span>
+        <span id="fileName" class="fileName">게시 자료 확인 중</span>
       </div>
     </header>
 
-    <p id="dataStatus" class="dataStatus" role="status">갱신 정보 확인 중</p>
+    <section class="datasetInfo" aria-label="게시 자료 정보">
+      <p id="dataStatus" class="dataStatus" role="status">게시 자료 확인 중</p>
+      <dl class="datasetMeta">
+        <div><dt>자료 반영 시각</dt><dd id="publishedAt">-</dd></div>
+        <div><dt>계약기간</dt><dd id="datasetPeriod">-</dd></div>
+        <div><dt>정기 갱신</dt><dd>매월 1일 09:00 · 토·일 제외</dd></div>
+        <div><dt>데이터 버전</dt><dd id="datasetVersion">-</dd></div>
+        <div class="sourceMeta"><dt>원본 CSV</dt><dd id="sourceFiles">-</dd></div>
+        <div class="sourceMeta"><dt>검증 결과</dt><dd id="validationInfo">-</dd></div>
+      </dl>
+    </section>
     <section class="filters" aria-label="분석 조건">
       <label class="selectGroup itemSelectGroup">
         <span class="label">분야</span>
@@ -101,6 +110,6 @@
 
   <script src="./vendor/papaparse.js"></script>
   <script src="./data-model.js"></script>
-  <script src="./app.js?v=updater-20261106"></script>
+  <script src="./app.js?v=folder-results-20261106"></script>
 </body>
 </html>

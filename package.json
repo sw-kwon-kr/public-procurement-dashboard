@@ -1,0 +1,7 @@
+{
+  "name": "public-procurement-dashboard",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs"
+  }
+}

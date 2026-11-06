@@ -40,8 +40,15 @@ button, input { font: inherit; }
 h1, h2, p { margin-top: 0; }
 h1 { margin-bottom: 0; font-size: 30px; line-height: 1.15; }
 h2 { margin-bottom: 4px; font-size: 18px; }
-.uploadBox { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-.uploadButton, .ghostButton, .segment {
+.datasetBadge { display: grid; gap: 5px; text-align: right; }
+.datasetLabel { color: #0f766e; font-size: 13px; font-weight: 700; }
+.datasetInfo { padding: 12px 4px 16px; border-bottom: 1px solid var(--line); }
+.datasetMeta { margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 20px; }
+.datasetMeta div { min-width: 0; }
+.datasetMeta dt { color: var(--muted); font-size: 12px; margin-bottom: 5px; }
+.datasetMeta dd { margin: 0; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.sourceMeta { grid-column: span 2; }
+.ghostButton, .segment {
   border: 1px solid var(--line);
   background: #f8fafc;
   color: var(--ink);
@@ -49,8 +56,6 @@ h2 { margin-bottom: 4px; font-size: 18px; }
   border-radius: 6px;
   min-height: 38px;
 }
-.uploadButton { display: inline-flex; align-items: center; padding: 0 14px; font-weight: 800; background: var(--blue); border-color: var(--blue); color: #fff; }
-#csvFile { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .fileName { max-width: 340px; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .filters {
   margin-top: 12px;
@@ -141,6 +146,9 @@ td { color: #253046; min-width: 92px; }
   .detailPanel { min-height: auto; }
 }
 @media (max-width: 760px) {
+  .datasetBadge { text-align: left; }
+  .datasetMeta { grid-template-columns: 1fr 1fr; }
+  .sourceMeta { grid-column: 1 / -1; }
   .shell { width: min(100vw - 20px, 1480px); padding-top: 10px; }
   .topbar { align-items: flex-start; flex-direction: column; }
   .filters {
