@@ -29,3 +29,7 @@ vercel.json이 빌드·출력·캐시 설정을 관리합니다. 빌드는 검�
 운영 주소는 https://public-procurement-dashboard.vercel.app/ 입니다. Vercel과 GitHub가 연결되어 로컬 updater의 main push가 새 배포를 시작합니다. updater/config.json의 publicUrl도 이 주소로 설정하여 실제 Vercel 데이터 버전과 해시를 확인합니다. 매월 1일 평일 예약과 수동 갱신은 동일한 게시 경로를 사용합니다.
 
 공식 문서: https://vercel.com/docs/project-configuration/vercel-json , https://vercel.com/docs/git
+
+## 테마
+
+상단 테마 선택에서 기존 밝은 테마와 다크 테마를 선택합니다. 선택값은 브라우저에 저장되어 재방문 시 복원되고 같은 사이트의 다른 탭에도 반영됩니다. 저장 기능을 사용할 수 없는 브라우저에서도 현재 화면의 테마 전환은 동작합니다. 테마 전환은 필터와 선택 업체를 변경하지 않습니다.

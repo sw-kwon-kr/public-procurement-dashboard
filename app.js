@@ -36,7 +36,22 @@ const els = {
   detailRows: document.querySelector("#detailRows"),
   companyStats: document.querySelector("#companyStats"),
   resetSelection: document.querySelector("#resetSelection"),
+  themeSelect: document.querySelector("#themeSelect"),
 };
+
+function applyTheme(value, persist = true) {
+  const theme = value === "dark" ? "dark" : "light";
+  if (document.documentElement) document.documentElement.dataset.theme = theme;
+  els.themeSelect.value = theme;
+  if (persist) {
+    try { window.localStorage.setItem("procurement-theme", theme); } catch {}
+  }
+}
+applyTheme(document.documentElement?.dataset.theme, false);
+els.themeSelect.addEventListener("change", () => applyTheme(els.themeSelect.value));
+window.addEventListener("storage", event => {
+  if (event.key === "procurement-theme" || event.key === null) applyTheme(event.newValue, false);
+});
 
 function toNumber(value) {
   const numeric = String(value ?? "0").replace(/,/g, "").replace(/[^0-9.-]/g, "");

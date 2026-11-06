@@ -1,10 +1,15 @@
 ﻿<!doctype html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>조달 계약 대시보드</title>
-  <link rel="stylesheet" href="./styles.css?v=chart-views-20261106" />
+  <script>
+    try {
+      document.documentElement.dataset.theme = localStorage.getItem("procurement-theme") === "dark" ? "dark" : "light";
+    } catch { document.documentElement.dataset.theme = "light"; }
+  </script>
+  <link rel="stylesheet" href="./styles.css?v=themes-20261106" />
 </head>
 <body>
   <main class="shell">
@@ -13,9 +18,17 @@
         <p class="eyebrow">Public Procurement Dashboard</p>
         <h1>조달 계약 분석</h1>
       </div>
-      <div class="datasetBadge">
-        <span class="datasetLabel">폴더 분석 자료</span>
-        <span id="fileName" class="fileName">게시 자료 확인 중</span>
+      <div class="headerTools">
+        <div class="datasetBadge">
+          <span class="datasetLabel">폴더 분석 자료</span>
+          <span id="fileName" class="fileName">게시 자료 확인 중</span>
+        </div>
+        <label class="themeControl">테마
+          <select id="themeSelect">
+            <option value="light">기본 (밝게)</option>
+            <option value="dark">다크</option>
+          </select>
+        </label>
       </div>
     </header>
 
@@ -116,6 +129,6 @@
 
   <script src="./vendor/papaparse.js"></script>
   <script src="./data-model.js"></script>
-  <script src="./app.js?v=chart-views-20261106"></script>
+  <script src="./app.js?v=themes-20261106"></script>
 </body>
 </html>
