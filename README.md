@@ -26,6 +26,6 @@ GitHub 저장소 sw-kwon-kr/public-procurement-dashboard를 Import합니다.
 
 vercel.json이 빌드·출력·캐시 설정을 관리합니다. 빌드는 검증된 JSON과 화면 자산만 site에 복사하며 원본 CSV와 로컬 운영 파일은 포함하지 않습니다.
 
-Vercel이 GitHub에 연결되면 로컬 updater의 main push가 새 배포를 시작합니다. Vercel 공개 주소가 확정된 뒤 updater/config.json의 publicUrl을 끝에 /가 있는 해당 주소로 변경하고 게시 버전 확인을 실행해야 전환이 완료됩니다. 현재 운영 주소는 프로젝트 연결 전까지 기존 GitHub Pages 주소입니다.
+운영 주소는 https://public-procurement-dashboard.vercel.app/ 입니다. Vercel과 GitHub가 연결되어 로컬 updater의 main push가 새 배포를 시작합니다. updater/config.json의 publicUrl도 이 주소로 설정하여 실제 Vercel 데이터 버전과 해시를 확인합니다. 매월 1일 평일 예약과 수동 갱신은 동일한 게시 경로를 사용합니다.
 
 공식 문서: https://vercel.com/docs/project-configuration/vercel-json , https://vercel.com/docs/git
