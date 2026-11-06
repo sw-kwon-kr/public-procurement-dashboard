@@ -1,46 +1,46 @@
 {
   "schemaVersion": 1,
   "rulesVersion": "2",
-  "version": "22d9f5c277281f0179f1",
-  "publishedAt": "2026-11-06T02:02:25.966Z",
+  "version": "4c2442edf6439b392a0f",
+  "publishedAt": "2026-11-06T02:08:49.882Z",
   "summary": {
-    "count": 2073,
-    "amount": 197610397162,
-    "companies": 408,
+    "count": 2380,
+    "amount": 238528227513,
+    "companies": 458,
     "from": "2026-01-02",
-    "to": "2026-07-28"
+    "to": "2026-10-30"
   },
   "sources": [
     {
       "type": "procurement",
-      "filename": "UI-ADOXFA-190R.특정품목 조달 내역.csv",
-      "sha256": "6023664ff7b1b796e385ceab2e0474c747a78c5f6e2b9c5ffe2009070c94533f",
-      "bytes": 2062830,
-      "source": "UI-ADOXFA-190R.특정품목 조달 내역.csv",
-      "original": 2226,
-      "target": 2072,
+      "filename": "20261106 특정품목 조달 내역.csv",
+      "sha256": "c2c35c46d4c235be67fbc7354ad5a6b069fafa60271fbcae03679237c716a8b7",
+      "bytes": 2429578,
+      "source": "20261106 특정품목 조달 내역.csv",
+      "original": 2627,
+      "target": 2379,
       "excluded": 0,
       "inferred": 0,
-      "nonFinal": 154
+      "nonFinal": 248
     },
     {
       "type": "innovation",
-      "filename": "UI-ADOXAA-045R.혁신제품 계약납품요구 내역.csv",
-      "sha256": "4c25dc3c726c17f184abf7ed803638fccad8bfba101cc057a07de1becaba2609",
-      "bytes": 3831048,
-      "source": "UI-ADOXAA-045R.혁신제품 계약납품요구 내역.csv",
-      "original": 6733,
-      "target": 20,
-      "excluded": 6713,
-      "inferred": 20,
+      "filename": "20261106 혁신제품 계약납품 요구 내역.csv",
+      "sha256": "6ef89f62594507af85c063e10b8a2a44771dac6cebe0013a8d4fd154105fc49b",
+      "bytes": 5772388,
+      "source": "20261106 혁신제품 계약납품 요구 내역.csv",
+      "original": 10145,
+      "target": 24,
+      "excluded": 10121,
+      "inferred": 24,
       "nonFinal": 0
     }
   ],
   "validation": {
-    "duplicates": 19,
+    "duplicates": 23,
     "fallbackKeys": 0,
-    "adjustedInnovationContracts": 2
+    "adjustedInnovationContracts": 4
   },
   "dataFile": "contracts.json",
-  "dataSha256": "c41a5476a0dbb0962679a8fdd78c40b6253ec3720727608a59b54b1555b93289"
+  "dataSha256": "8d0137dd0c88b318e6b34582ee1cf17c830b10a9df5dac9cd48cdc55d648d4c8"
 }
