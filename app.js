@@ -121,7 +121,9 @@ function filteredRows() {
   return state.rows.filter(row => {
     const date = toDateInput(row["계약(납품요구)일자"]);
     const item = ITEM_OPTIONS.find(option => option.name === state.selectedItem);
-    const matchesItem = row["세부품명"] === state.selectedItem || row["세부품명번호"] === item?.code;
+    const matchesItem = state.selectedItem === "전체"
+      ? ITEM_OPTIONS.some(option => row["세부품명번호"] === option.code)
+      : row["세부품명"] === state.selectedItem || row["세부품명번호"] === item?.code;
     const afterStart = !state.dateFrom || date >= state.dateFrom;
     const beforeEnd = !state.dateTo || date <= state.dateTo;
     const matchesSearch = !state.search || row["업체명"].toLowerCase().includes(state.search.toLowerCase());
