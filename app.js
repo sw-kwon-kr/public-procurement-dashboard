@@ -6,7 +6,7 @@
 
 const state = {
   rows: [],
-  selectedItem: ITEM_OPTIONS[0].name,
+  selectedItem: "전체",
   metric: "amount",
   chartView: "tiles",
   selectedCompany: null,
