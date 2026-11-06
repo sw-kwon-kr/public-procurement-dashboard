@@ -37,89 +37,10 @@ const els = {
 };
 
 function parseTable(text, sourceName = "") {
-  const lines = text.replace(/^\ufeff/, "").split(/\r?\n/).filter(Boolean);
-  const headerIndex = lines.findIndex(line => (line.includes("세부품명번호") || line.includes("물품분류번호")) && (line.includes("공급금액") || line.includes("계약(납품요구)금액")));
-  if (headerIndex < 0) throw new Error(`${sourceName || "CSV"}에서 분석 가능한 헤더를 찾지 못했습니다.`);
-  const delimiter = lines[headerIndex].includes("\t") ? "\t" : ",";
-  const headers = parseDelimitedLine(lines[headerIndex], delimiter).map(cleanCell);
-  return lines.slice(headerIndex + 1).map(line => {
-    const cells = parseDelimitedLine(line, delimiter);
-    const row = headers.reduce((acc, key, index) => {
-      acc[key] = cleanCell(cells[index] ?? "");
-      return acc;
-    }, {});
-    return normalizeRow(row, sourceName);
-  }).filter(row => row["업체명"] && isTargetItem(row));
+  return ProcurementData.parse(text, sourceName).rows;
 }
-
-function normalizeRow(row, sourceName) {
-  const inferred = inferItem(row);
-  return {
-    ...row,
-    "세부품명번호": row["세부품명번호"] || inferred?.code || row["물품분류번호"] || "",
-    "세부품명": row["세부품명"] || inferred?.name || row["품명"] || "",
-    "공급금액": row["공급금액"] || row["계약(납품요구)금액"] || "0",
-    "계약(납품요구)명": row["계약(납품요구)명"] || row["계약명"] || "",
-    "최종계약(납품요구)여부": row["최종계약(납품요구)여부"] || "Y",
-    "자료구분": isInnovationDataset(row, sourceName) ? "혁신제품" : "특정품목",
-    "원본파일": sourceName || "업로드 CSV",
-  };
-}
-
-function isInnovationDataset(row, sourceName) {
-  const name = String(sourceName || "").toLowerCase();
-  return name.includes("혁신") || name.includes("innovation") || Boolean(row["혁신지정구분"] || row["혁신지정기관명"] || row["인증번호"]);
-}
-
-function inferItem(row) {
-  const text = [row["세부품명"], row["품명"], row["품목명"], row["계약명"], row["계약(납품요구)명"]].filter(Boolean).join(" ");
-  return ITEM_OPTIONS.find(option => text.includes(option.name));
-}
-
-function isExcludedInnovationItem(row) {
-  const text = [row["품목명"], row["계약명"], row["계약(납품요구)명"], row["세부품명"]].filter(Boolean).join(" ");
-  return row["자료구분"] === "혁신제품" && text.includes("융복합안내전광판");
-}
-
-function isTargetItem(row) {
-  if (isExcludedInnovationItem(row)) return false;
-  return ITEM_OPTIONS.some(option => row["세부품명번호"] === option.code || row["세부품명"] === option.name);
-}
-
-function parseDelimitedLine(line, delimiter) {
-  const cells = [];
-  let value = "";
-  let quoted = false;
-  for (let i = 0; i < line.length; i += 1) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (quoted && line[i + 1] === '"') {
-        value += '"';
-        i += 1;
-      } else {
-        quoted = !quoted;
-      }
-    } else if (ch === delimiter && !quoted) {
-      cells.push(value);
-      value = "";
-    } else {
-      value += ch;
-    }
-  }
-  cells.push(value);
-  return cells;
-}
-
-function cleanCell(value) {
-  return String(value ?? "").trim().replace(/^"|"$/g, "").trim();
-}
-
 function decodeCsv(buffer) {
-  const bytes = new Uint8Array(buffer);
-  const hasUtf16Bom = bytes[0] === 0xff && bytes[1] === 0xfe;
-  const likelyUtf16 = hasUtf16Bom || bytes.slice(0, 80).filter((_, index) => index % 2 === 1 && bytes[index] === 0).length > 10;
-  const decoder = new TextDecoder(likelyUtf16 ? "utf-16le" : "utf-8");
-  return decoder.decode(buffer);
+  return ProcurementData.decode(buffer);
 }
 
 function toNumber(value) {
@@ -167,28 +88,7 @@ function formatDate(value) {
 }
 
 function uniqueContractRows(rows) {
-  const seen = new Set();
-  return rows.filter(row => {
-    const itemIdentity = [row["물품식별번호"], row["품목명"]].filter(Boolean).join(" / ");
-    const methodType = [row["조달방식"], row["계약구분"], row["계약방법"]].filter(Boolean).join(" / ");
-    const key = [
-      row["자료구분"],
-      row["원본파일"],
-      formatDate(row["계약(납품요구)일자"]),
-      row["계약(납품요구)번호"],
-      row["조달방식"],
-      row["세부품명"],
-      itemIdentity,
-      methodType,
-      row["업체명"],
-      row["수요기관"],
-      row["계약(납품요구)명"],
-      toNumber(row["공급금액"]),
-    ].join("\u001f");
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  return ProcurementData.merge(rows).rows;
 }
 
 function filteredRows() {
@@ -201,7 +101,7 @@ function filteredRows() {
     const matchesSearch = !state.search || row["업체명"].toLowerCase().includes(state.search.toLowerCase());
     const matchesExcellent = state.procurementFilter !== "excellent" || isExcellentProcurement(row);
     const matchesMas = state.procurementFilter !== "mas" || isMasContract(row);
-    const matchesInnovation = state.procurementFilter !== "innovation" || row["자료구분"] === "혁신제품";
+    const matchesInnovation = state.procurementFilter !== "innovation" || Boolean(row._innovation);
     return isFinalContract(row) && matchesItem && afterStart && beforeEnd && matchesSearch && matchesExcellent && matchesMas && matchesInnovation;
   });
 }
@@ -210,11 +110,12 @@ function aggregate(rows) {
   const map = new Map();
   rows.forEach(row => {
     const company = row["업체명"];
-    const current = map.get(company) ?? { company, count: 0, amount: 0, rows: [] };
+    const companyKey = ProcurementData.companyKey(row);
+    const current = map.get(companyKey) ?? { company, companyKey, count: 0, amount: 0, rows: [] };
     current.count += 1;
     current.amount += toNumber(row["공급금액"]);
     current.rows.push(row);
-    map.set(company, current);
+    map.set(companyKey, current);
   });
   const key = state.metric === "amount" ? "amount" : "count";
   return [...map.values()].sort((a, b) => b[key] - a[key] || b.amount - a.amount);
@@ -298,9 +199,9 @@ function renderTreemap(grouped) {
     const displayValue = state.metric === "amount" ? formatWon(box.amount) : `${box.count.toLocaleString("ko-KR")}건`;
     const share = total ? `${(box[key] / total * 100).toFixed(1)}%` : "0%";
     const fontSize = Math.max(11, Math.min(25, Math.sqrt(area) / 8));
-    return `<button class="tile ${tiny ? "tileTiny" : ""} ${state.selectedCompany === box.company ? "selected" : ""}"
+    return `<button class="tile ${tiny ? "tileTiny" : ""} ${state.selectedCompany === box.companyKey ? "selected" : ""}"
       style="left:${box.x}px;top:${box.y}px;width:${box.w}px;height:${box.h}px;background:${colorFor(index, boxes.length)};font-size:${fontSize}px"
-      title="${box.company} ${displayValue}" data-company="${escapeAttr(box.company)}">
+      title="${escapeAttr(box.company)} ${displayValue}" data-company="${escapeAttr(box.companyKey)}">
       <span class="tileCompany">${box.company}</span>
       <span class="tileValue">${displayValue}</span>
       <span class="tileMeta">${box.count.toLocaleString("ko-KR")}건 · ${share}</span>
@@ -313,7 +214,7 @@ function escapeAttr(value) {
 }
 
 function renderDetails(grouped) {
-  const selected = grouped.find(item => item.company === state.selectedCompany);
+  const selected = grouped.find(item => item.companyKey === state.selectedCompany);
   if (!selected) {
     els.detailTitle.textContent = "업체 상세";
     els.detailSubTitle.textContent = "업체 타일을 선택하세요";
@@ -363,46 +264,61 @@ function render() {
 }
 
 async function loadSample() {
-  const samples = [
-    "./data/sample-procurement.csv",
-    "./data/sample-innovation.csv",
-  ];
   try {
-    const loaded = [];
-    for (const url of samples) {
-      const res = await fetch(url);
-      if (!res.ok) continue;
+    const response = await fetch("./data/manifest.json", { cache: "no-store" });
+    if (response.status === 404) {
+      const loaded = [];
+      for (const file of ["sample-procurement.csv", "sample-innovation.csv"]) {
+        const res = await fetch("./data/" + file);
+        if (!res.ok) throw new Error("기본 CSV를 읽지 못했습니다.");
+        loaded.push(...parseTable(decodeCsv(await res.arrayBuffer()), file));
+      }
+      state.rows = uniqueContractRows(loaded);
+      els.fileName.textContent = "기본 CSV · " + state.rows.length.toLocaleString("ko-KR") + "건";
+      document.querySelector("#dataStatus").textContent = "게시 버전 정보 없음";
+    } else {
+      if (!response.ok) throw new Error("갱신 정보를 읽지 못했습니다.");
+      const manifest = await response.json();
+      if (manifest.schemaVersion !== 1 || !/^[a-f0-9]{20}$/.test(manifest.version)) throw new Error("지원하지 않는 데이터 버전입니다.");
+      const res = await fetch("./data/contracts.json?v=" + manifest.version, { cache: "no-store" });
+      if (!res.ok) throw new Error("게시 데이터를 읽지 못했습니다.");
       const buffer = await res.arrayBuffer();
-      const name = url.split("/").pop();
-      loaded.push(...parseTable(decodeCsv(buffer), name));
+      const checksum = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", buffer)), b => b.toString(16).padStart(2, "0")).join("");
+      if (checksum !== manifest.dataSha256) throw new Error("데이터 배포 중입니다. 잠시 후 새로고침하세요.");
+      state.rows = JSON.parse(new TextDecoder().decode(buffer));
+      const summary = ProcurementData.summarize(state.rows);
+      if (summary.count !== manifest.summary.count || summary.amount !== manifest.summary.amount) throw new Error("게시 집계 검증 실패");
+      els.fileName.textContent = "게시 자료 · " + summary.count.toLocaleString("ko-KR") + "건";
+      document.querySelector("#dataStatus").textContent = "반영 " + new Date(manifest.publishedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
+        + " · 계약기간 " + summary.from + " ~ " + summary.to + " · 버전 " + manifest.version;
     }
-    if (!loaded.length) throw new Error("샘플 CSV를 불러오지 못했습니다.");
-    state.rows = loaded;
-    state.sourceName = "기본 샘플 2개";
     state.selectedCompany = null;
     setInitialDates();
-    els.fileName.textContent = `${state.sourceName} · ${state.rows.length.toLocaleString("ko-KR")}행`;
     render();
   } catch (error) {
-    els.fileName.textContent = "CSV를 업로드하세요";
-    els.treemap.innerHTML = `<div class="notice">${error.message}</div>`;
+    els.fileName.textContent = "자료 로딩 실패";
+    els.treemap.textContent = error.message;
+    document.querySelector("#dataStatus").textContent = "갱신 확인 실패";
   }
 }
 
 els.csvFile.addEventListener("change", async event => {
   const files = [...(event.target.files || [])];
   if (!files.length) return;
-  const loaded = [];
-  for (const file of files) {
-    const buffer = await file.arrayBuffer();
-    loaded.push(...parseTable(decodeCsv(buffer), file.name));
+  try {
+    const loaded = [];
+    for (const file of files) loaded.push(...parseTable(decodeCsv(await file.arrayBuffer()), file.name));
+    const rows = uniqueContractRows(loaded);
+    if (!rows.length) throw new Error("대상 계약이 없습니다.");
+    state.rows = rows;
+    state.selectedCompany = null;
+    setInitialDates();
+    els.fileName.textContent = files.length + "개 CSV · " + rows.length.toLocaleString("ko-KR") + "건";
+    document.querySelector("#dataStatus").textContent = "수동 업로드 자료 · 이 화면에만 적용";
+    render();
+  } catch(error) {
+    document.querySelector("#dataStatus").textContent = "업로드 실패: " + error.message;
   }
-  state.rows = loaded;
-  state.sourceName = files.length === 1 ? files[0].name : `${files.length.toLocaleString("ko-KR")}개 CSV`;
-  state.selectedCompany = null;
-  setInitialDates();
-  els.fileName.textContent = `${state.sourceName} · ${state.rows.length.toLocaleString("ko-KR")}행`;
-  render();
 });
 els.itemSelect.addEventListener("change", () => { state.selectedItem = els.itemSelect.value; state.selectedCompany = null; render(); });
 els.metricSelect.addEventListener("change", () => { state.metric = els.metricSelect.value; state.selectedCompany = null; render(); });

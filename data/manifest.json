@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": "2",
+  "version": "fe4ff8ded131ed0ca703",
+  "publishedAt": "2026-11-06T01:35:51.278Z",
+  "summary": {
+    "count": 2073,
+    "amount": 197610397162,
+    "companies": 408,
+    "from": "2026-01-02",
+    "to": "2026-07-28"
+  },
+  "sources": [
+    {
+      "type": "procurement",
+      "filename": "UI-ADOXFA-190R.특정품목 조달 내역.csv",
+      "sha256": "6023664ff7b1b796e385ceab2e0474c747a78c5f6e2b9c5ffe2009070c94533f",
+      "bytes": 2062830,
+      "source": "UI-ADOXFA-190R.특정품목 조달 내역.csv",
+      "original": 2226,
+      "target": 2072,
+      "excluded": 0,
+      "inferred": 0,
+      "nonFinal": 154
+    },
+    {
+      "type": "innovation",
+      "filename": "UI-ADOXAA-045R.혁신제품 계약납품요구 내역.csv",
+      "sha256": "4c25dc3c726c17f184abf7ed803638fccad8bfba101cc057a07de1becaba2609",
+      "bytes": 3831048,
+      "source": "UI-ADOXAA-045R.혁신제품 계약납품요구 내역.csv",
+      "original": 6733,
+      "target": 20,
+      "excluded": 6713,
+      "inferred": 20,
+      "nonFinal": 0
+    }
+  ],
+  "validation": {
+    "duplicates": 19,
+    "fallbackKeys": 0,
+    "adjustedInnovationContracts": 2
+  },
+  "dataFile": "contracts.json",
+  "dataSha256": "c41a5476a0dbb0962679a8fdd78c40b6253ec3720727608a59b54b1555b93289"
+}

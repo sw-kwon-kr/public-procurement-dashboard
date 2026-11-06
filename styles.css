@@ -170,3 +170,10 @@ td { color: #253046; min-width: 92px; }
 
 
 
+.dataStatus {
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  color: #475569;
+  margin: 8px 0 16px;
+}
