@@ -47,7 +47,28 @@ h2 { margin-bottom: 4px; font-size: 18px; }
 .datasetMeta div { min-width: 0; }
 .datasetMeta dt { color: var(--muted); font-size: 12px; margin-bottom: 5px; }
 .datasetMeta dd { margin: 0; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
-.sourceMeta { grid-column: span 2; }
+.chartTools { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.viewSwitch { display: flex; margin: 0; padding: 3px; border: 1px solid var(--line); border-radius: 6px; background: #f1f5f9; }
+.viewSwitch label { position: relative; display: flex; min-width: 74px; height: 32px; cursor: pointer; }
+.viewSwitch input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.viewSwitch span { display: grid; place-items: center; width: 100%; border-radius: 3px; font-size: 13px; font-weight: 700; }
+.viewSwitch input:checked + span { background: #172033; color: white; }
+.viewSwitch input:focus-visible + span { outline: 3px solid #0f766e; outline-offset: 2px; }
+.visuallyHidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.barList { list-style: none; margin: 0; padding: 0; height: min(62vh, 680px); min-height: 520px; overflow: auto; background: white; }
+.barList[hidden], .treemap[hidden] { display: none; }
+.barRow { width: 100%; min-height: 64px; display: grid; grid-template-columns: 32px minmax(160px, 1.2fr) minmax(100px, 2fr) minmax(150px, .9fr); align-items: center; gap: 16px; border: 0; border-bottom: 1px solid var(--line); background: white; color: var(--ink); padding: 12px 16px; text-align: left; cursor: pointer; }
+.barRow:hover { background: #f8fafc; }
+.barRow.selected { background: #eef7ff; box-shadow: inset 3px 0 #2563eb; }
+.barRow:focus-visible { outline: 3px solid #0f766e; outline-offset: -3px; }
+.barRank { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.barCompany { min-width: 0; overflow-wrap: anywhere; font-size: 14px; font-weight: 700; }
+.barTrack { display: block; height: 12px; border-radius: 3px; background: #e2e8f0; overflow: hidden; }
+.barFill { display: block; height: 100%; }
+.barValues { min-width: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.barValues strong { display: block; font-size: 14px; overflow-wrap: anywhere; }
+.barValues > span { display: block; margin-top: 4px; font-size: 12px; color: var(--muted); }
+.listEmpty { padding: 32px 16px; text-align: center; color: var(--muted); }
 .ghostButton, .segment {
   border: 1px solid var(--line);
   background: #f8fafc;
@@ -148,7 +169,14 @@ td { color: #253046; min-width: 92px; }
 @media (max-width: 760px) {
   .datasetBadge { text-align: left; }
   .datasetMeta { grid-template-columns: 1fr 1fr; }
-  .sourceMeta { grid-column: 1 / -1; }
+  .datasetMeta { grid-template-columns: 1fr; }
+  .chartPanel > .panelHead { flex-direction: column; align-items: stretch; }
+  .chartTools { justify-content: space-between; }
+  .barRow { grid-template-columns: 24px minmax(0, 1fr) minmax(110px, auto); column-gap: 10px; row-gap: 8px; padding: 12px; }
+  .barRank { grid-column: 1; grid-row: 1; }
+  .barCompany { grid-column: 2; grid-row: 1; }
+  .barValues { grid-column: 3; grid-row: 1; }
+  .barTrack { grid-column: 2 / -1; grid-row: 2; height: 10px; }
   .shell { width: min(100vw - 20px, 1480px); padding-top: 10px; }
   .topbar { align-items: flex-start; flex-direction: column; }
   .filters {

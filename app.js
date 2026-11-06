@@ -8,6 +8,7 @@ const state = {
   rows: [],
   selectedItem: ITEM_OPTIONS[0].name,
   metric: "amount",
+  chartView: "tiles",
   selectedCompany: null,
   dateFrom: "",
   dateTo: "",
@@ -25,6 +26,9 @@ const els = {
   procurementFilter: document.querySelector("#procurementFilter"),
   summaryGrid: document.querySelector("#summaryGrid"),
   treemap: document.querySelector("#treemap"),
+  companyList: document.querySelector("#companyList"),
+  tileView: document.querySelector("#tileView"),
+  listView: document.querySelector("#listView"),
   chartTitle: document.querySelector("#chartTitle"),
   chartSubTitle: document.querySelector("#chartSubTitle"),
   detailTitle: document.querySelector("#detailTitle"),
@@ -128,7 +132,7 @@ function renderSummary(rows, grouped) {
   const cards = [
     ["총 계약금액", formatFullWon(totalAmount)],
     ["계약건수", `${rows.length.toLocaleString("ko-KR")}건`],
-    ["참여 업체", `${grouped.length.toLocaleString("ko-KR")}개`],
+    ["계약업체", `${grouped.length.toLocaleString("ko-KR")}개`],
     [state.metric === "amount" ? "1위 계약금액 업체" : "1위 계약건수 업체", top ? top.company : "-"],
   ];
   els.summaryGrid.innerHTML = cards.map(([label, value]) => `<article class="summaryCard"><span>${label}</span><strong>${value}</strong></article>`).join("");
@@ -200,6 +204,27 @@ function renderTreemap(grouped) {
   }).join("");
 }
 
+function renderCompanyList(grouped) {
+  const key = state.metric === "amount" ? "amount" : "count";
+  const maximum = Math.max(0, ...grouped.map(item => item[key]));
+  if (!grouped.length) {
+    els.companyList.innerHTML = '<li class="listEmpty">조건에 맞는 계약 자료가 없습니다.</li>';
+    return;
+  }
+  els.companyList.innerHTML = grouped.map((item, index) => {
+    const width = maximum ? Math.max(0, item[key] / maximum * 100) : 0;
+    const selected = state.selectedCompany === item.companyKey;
+    const primary = state.metric === "amount" ? formatFullWon(item.amount) : item.count.toLocaleString("ko-KR") + "건";
+    const secondary = state.metric === "amount" ? item.count.toLocaleString("ko-KR") + "건" : formatFullWon(item.amount);
+    return `<li><button type="button" class="barRow ${selected ? "selected" : ""}" data-company="${escapeAttr(item.companyKey)}" aria-pressed="${selected}">
+      <span class="barRank">${index + 1}</span>
+      <span class="barCompany">${escapeAttr(item.company)}</span>
+      <span class="barTrack" aria-hidden="true"><span class="barFill" style="width:${width}%;background:${colorFor(index, grouped.length)}"></span></span>
+      <span class="barValues"><strong>${primary}</strong><span>${secondary}</span></span>
+    </button></li>`;
+  }).join("");
+}
+
 function escapeAttr(value) {
   return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -208,7 +233,7 @@ function renderDetails(grouped) {
   const selected = grouped.find(item => item.companyKey === state.selectedCompany);
   if (!selected) {
     els.detailTitle.textContent = "업체 상세";
-    els.detailSubTitle.textContent = "업체 타일을 선택하세요";
+    els.detailSubTitle.textContent = "업체를 선택하세요";
     els.companyStats.innerHTML = "";
     els.detailRows.innerHTML = `<tr><td colspan="9" class="empty">선택된 업체가 없습니다.</td></tr>`;
     return;
@@ -248,9 +273,15 @@ function render() {
   els.chartTitle.textContent = `${state.selectedItem} 업체별 ${metricLabel}`;
   const filterLabels = { all: "전체", excellent: "우수조달", mas: "MAS", innovation: "혁신제품" };
   const activeFilter = filterLabels[state.procurementFilter] || "";
-  els.chartSubTitle.textContent = `${state.dateFrom || "전체"} ~ ${state.dateTo || "전체"} · ${activeFilter ? `${activeFilter} · ` : ""}${metricLabel} 기준 면적 표시`;
+  const displayLabel = state.chartView === "list" ? metricLabel + (state.metric === "amount" ? " 높은 순" : " 많은 순") : metricLabel + " 기준 면적 표시";
+  els.chartSubTitle.textContent = `${state.dateFrom || "전체"} ~ ${state.dateTo || "전체"} · ${activeFilter ? `${activeFilter} · ` : ""}${displayLabel}`;
   renderSummary(rows, grouped);
-  renderTreemap(grouped);
+  els.treemap.hidden = state.chartView !== "tiles";
+  els.companyList.hidden = state.chartView !== "list";
+  els.tileView.checked = state.chartView === "tiles";
+  els.listView.checked = state.chartView === "list";
+  if (state.chartView === "list") renderCompanyList(grouped);
+  else renderTreemap(grouped);
   renderDetails(grouped);
 }
 
@@ -271,10 +302,8 @@ async function loadPublishedData() {
     els.fileName.textContent = "게시 자료 · " + summary.count.toLocaleString("ko-KR") + "건";
     document.querySelector("#publishedAt").textContent = new Date(manifest.publishedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
     document.querySelector("#datasetPeriod").textContent = summary.from + " ~ " + summary.to;
-    document.querySelector("#datasetVersion").textContent = manifest.version;
-    document.querySelector("#sourceFiles").textContent = (manifest.sources || []).map(s => s.filename).join(" / ") || "-";
     document.querySelector("#validationInfo").textContent = "중복 " + (manifest.validation?.duplicates || 0) + "건 정리 · 혁신 최종금액 " + (manifest.validation?.adjustedInnovationContracts || 0) + "건 반영";
-    document.querySelector("#dataStatus").textContent = "게시 검증 완료 · 버전 " + manifest.version;
+    document.querySelector("#dataStatus").textContent = "게시 검증 완료";
     state.selectedCompany = null;
     setInitialDates();
     render();
@@ -286,18 +315,22 @@ async function loadPublishedData() {
 }
 els.itemSelect.addEventListener("change", () => { state.selectedItem = els.itemSelect.value; state.selectedCompany = null; render(); });
 els.metricSelect.addEventListener("change", () => { state.metric = els.metricSelect.value; state.selectedCompany = null; render(); });
+els.tileView.addEventListener("change", () => { state.chartView = "tiles"; render(); });
+els.listView.addEventListener("change", () => { state.chartView = "list"; render(); });
 
 els.dateFrom.addEventListener("change", () => { state.dateFrom = els.dateFrom.value; state.selectedCompany = null; render(); });
 els.dateTo.addEventListener("change", () => { state.dateTo = els.dateTo.value; state.selectedCompany = null; render(); });
 els.companySearch.addEventListener("input", () => { state.search = els.companySearch.value.trim(); state.selectedCompany = null; render(); });
 els.procurementFilter.addEventListener("change", () => { state.procurementFilter = els.procurementFilter.value; state.selectedCompany = null; render(); });
 els.resetSelection.addEventListener("click", () => { state.selectedCompany = null; render(); });
-els.treemap.addEventListener("click", event => {
-  const tile = event.target.closest(".tile");
-  if (!tile) return;
-  state.selectedCompany = tile.dataset.company;
+function selectCompany(event) {
+  const target = event.target.closest("[data-company]");
+  if (!target) return;
+  state.selectedCompany = target.dataset.company;
   render();
-});
+}
+els.treemap.addEventListener("click", selectCompany);
+els.companyList.addEventListener("click", selectCompany);
 window.addEventListener("resize", () => render());
 loadPublishedData();
 
